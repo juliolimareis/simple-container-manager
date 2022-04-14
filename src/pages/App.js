@@ -1,79 +1,91 @@
 import useAlert from '../core/hooks/useAlert.ts';
 import { SystemContext } from '../core/SystemContext';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import ContainerList from '../components/ContainerList';
 import { FormControl, FormErrorMessage, ModalFooter, Input, ModalContent, ModalHeader, ModalCloseButton, ModalOverlay, Modal, ModalBody, Text, Button, Box, Heading } from '@chakra-ui/react'
 
 const App = () => {
-	const alertMessage = useAlert();
-	const { passwd, setPasswd, permissionDenied, setPermissionDenied } = useContext(SystemContext)
-	const [ modalPasswdOpen, setIsModalPasswdOpen ] = useState(true);
+  const alertMessage = useAlert();
+  const refPasswd = useRef(null);
+	const [passwd, setPasswd] = useState('')
+  const [execCommand, setExecCommand] = useState('')
+  const [modalPasswdOpen, setIsModalPasswdOpen] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false)
 
-	useEffect(() => {
-		setIsModalPasswdOpen(permissionDenied);
-	},[permissionDenied])
+  useEffect(() => {
+		console.log('useEffect => App')
+    if (permissionDenied) {
+      setIsModalPasswdOpen(true)
+    }
+  }, [permissionDenied])
 
-	const onSubmit = () => {
-		if(passwd != ''){
-			setIsModalPasswdOpen(false)
-			setPermissionDenied(false)
-			console.log('passwd: ', passwd);
+  const onSubmit = () => {
+    if (refPasswd.current.value !== '') {
+			setPasswd(refPasswd.current.value)
+      setIsModalPasswdOpen(false)
+      setPermissionDenied(false)
+    }else{
+			alertMessage('error','Password is required')
 		}
-	}
+  }
 
-	const handleKeyDown = (event) => {
+  const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       onSubmit()
     }
   }
 
-	const isError = passwd === ''
+  const isError = passwd === ''
 
-	return (
+  return (
     <Box textAlign='center' p={3}>
-			<Heading as="h3" fontSize={20} mb={4}>
-				Containers
-			</Heading>
-			<ContainerList />
-			
-			<Modal 
-				isOpen={modalPasswdOpen}
-				closeOnEsc={false}
-				closeOnOverlayClick={false}
-				onClose={() => setIsModalPasswdOpen(false)}
-			>
-				<ModalOverlay />
+      <Heading as="h3" fontSize={20} mb={4}>
+        Containers
+      </Heading>
+      <ContainerList
+				passwd={passwd}
+				execCommand={execCommand}
+				setExecCommand={setExecCommand}
+				permissionDenied={permissionDenied}
+				setPermissionDenied={setPermissionDenied}
+			/>
 
-				<ModalContent>
-					<ModalHeader textAlign='center'>
-						Permission Admin
-					</ModalHeader>
+      <Modal
+        isOpen={modalPasswdOpen}
+        closeOnEsc={false}
+        closeOnOverlayClick={false}
+        onClose={() => setIsModalPasswdOpen(false)}
+      >
+        <ModalOverlay />
 
-					<ModalBody>
-						<Text p={3}>To continue you need the super user password:</Text>
-						
-						<FormControl isInvalid={isError}>
-							<Input			
-								autoFocus	
-								type='password'
-								value={passwd}
-								placeholder='sudo password'
-								onKeyDown={handleKeyDown}
-								onChange={(event) => setPasswd(event.target.value)}
-							/>
+        <ModalContent>
+          <ModalHeader textAlign='center'>
+            Permission Admin
+          </ModalHeader>
 
-							<FormErrorMessage>Password is required.</FormErrorMessage>
+          <ModalBody>
+            <Text p={3}>To continue you need the super user password:</Text>
 
-						</FormControl>
-						
-					</ModalBody>
+            <FormControl>
+              <Input
+								ref={refPasswd}
+								required
+                autoFocus
+                type='password'
+                placeholder='sudo password'
+                onKeyDown={handleKeyDown}
+              />
 
-					<ModalFooter>
-						<Button onClick={onSubmit}>Confirm</Button>
-					</ModalFooter>
+            </FormControl>
 
-				</ModalContent>
-			</Modal>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button onClick={onSubmit}>Confirm</Button>
+          </ModalFooter>
+
+        </ModalContent>
+      </Modal>
 
     </Box>
   );

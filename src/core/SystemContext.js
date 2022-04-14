@@ -6,22 +6,29 @@ import React, { useState } from "react";
 // }
 
 export const SystemContext = React.createContext({
-	passwd: '',
-	setPasswd: (passwd) => {},
-	permissionDenied: false,
-	setPermissionDenied: (perm) => {},
+  passwd: '',
+  setPasswd: (passwd) => {},
+  permissionDenied: false,
+  setPermissionDenied: (perm) => {},
+  execCommand: '',
+  setExecCommand: (cmd) => {}
 })
 
-export const SystemProvider = ({children}) => {
-	const [passwd, setPasswd] = useState('')
-	const [permissionDenied, setPermissionDenied] = useState(false)
-	
-	return (
-		<SystemContext.Provider value={{ 
-			passwd, setPasswd,
-			permissionDenied, setPermissionDenied
-		}}>
-			{children}
-		</SystemContext.Provider>
-	)
+export const SystemProvider = ({ children }) => {
+  const [passwd, setPasswd] = useState('')
+  const [permissionDenied, setPermissionDenied] = useState(false)
+  const [execCommand, setExecCommand] = useState('')
+
+  return (
+    <SystemContext.Provider value={{
+      passwd,
+			setPasswd,
+      permissionDenied,
+			setPermissionDenied,
+      execCommand,
+      setExecCommand
+    }}>
+      {children}
+    </SystemContext.Provider>
+  )
 }
