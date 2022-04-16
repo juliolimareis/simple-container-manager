@@ -6,26 +6,44 @@ import { useState, useEffect, useContext } from 'react';
 import { BsFillPlayFill, BsStopFill, BsFillTrashFill } from 'react-icons/bs'
 import { Text, SimpleGrid, Button, Box, TableContainer, Table, TableCaption, Thead, Tr, Td, Th, Tbody, Tfoot } from '@chakra-ui/react'
 
-const ContainerList = ({passwd, permissionDenied, setPermissionDenied, execCommand, setExecCommand}) => {
+const ContainerList = ({
+  passwd,
+  execCommand,
+  setExecCommand,
+  permissionDenied,
+  setPermissionDenied,
+}) => {
   // const { passwd, setPermissionDenied, execCommand } = useContext(SystemContext)
-  const { fetchContainers, containers, error, cmdPermissionDenied, setCmdPermissionDenied } = useCommand(passwd);
+  const {
+    containers,
+    setContainers,
+    fetchContainers,
+    cmdPermissionDenied,
+    setCmdPermissionDenied
+  } = useCommand(passwd);
+
+  const [containerList, setContainerList] = useState([])
 
   useEffect(() => {
-		console.log('useEffect => ContainerList')
-		console.log('useEffect => ContainerList: passwd: ', passwd)
+    if (containerList !== containers) {
+      setContainerList(containers)
+    }
+  }, [containers])
+
+  useEffect(() => {
+    console.log('useEffect => ContainerList: passwd: ', passwd)
     if (cmdPermissionDenied) {
-			console.log('ContainerList: if: isPermissionDenied', cmdPermissionDenied)
+      console.log('ContainerList: if: isPermissionDenied', cmdPermissionDenied)
       setPermissionDenied(true)
-			setCmdPermissionDenied(false)
-    } 
-  },[cmdPermissionDenied])
-	
-	useEffect(() => {
-		if(!permissionDenied){
-			console.log('ContainerList: fetchContainers')
+      setCmdPermissionDenied(false)
+    }
+  }, [cmdPermissionDenied])
+
+  useEffect(() => {
+		if(passwd){
 			fetchContainers()
 		}
-	},[permissionDenied, execCommand])
+  }, [permissionDenied, passwd])
 
   return (
     <TableContainer>
@@ -42,21 +60,24 @@ const ContainerList = ({passwd, permissionDenied, setPermissionDenied, execComma
 
         <Tbody>
           {
-            containers.map((container, i) => (
+            containerList.map((container, i) => (
               <Tr key={i}>
                 <Td><Id container={container} /></Td>
                 <Td>{container.name}</Td>
                 <Td>{container.status}</Td>
                 <Td>
-									<Actions
-										passwd={passwd}
-										container={container}
-										execCommand={execCommand}
-										setExecCommand={setExecCommand}
-										permissionDenied={permissionDenied}
-										setPermissionDenied={setPermissionDenied}
-									/>
-								</Td>
+                  <Actions
+                    passwd={passwd}
+                    container={container}
+                    containers={containers}
+                    setContainers={setContainers}
+                    fetchContainers={fetchContainers}
+                    execCommand={execCommand}
+                    setExecCommand={setExecCommand}
+                    permissionDenied={permissionDenied}
+                    setPermissionDenied={setPermissionDenied}
+                  />
+                </Td>
               </Tr>
             ))
           }
@@ -67,9 +88,19 @@ const ContainerList = ({passwd, permissionDenied, setPermissionDenied, execComma
   )
 }
 
-const Actions = ({container, passwd, permissionDenied, setPermissionDenied, execCommand, setExecCommand}) => {
+const Actions = ({
+  passwd,
+  container,
+  containers,
+  setContainers,
+  execCommand,
+  setExecCommand,
+  fetchContainers,
+  permissionDenied,
+  setPermissionDenied,
+}) => {
   // const { passwd, setPermissionDenied, setExecCommand } = useContext(SystemContext)
-	const alertMessage = useAlert()
+  const alertMessage = useAlert()
   const {
     error,
     stopContainer,
@@ -79,15 +110,19 @@ const Actions = ({container, passwd, permissionDenied, setPermissionDenied, exec
     setCmdPermissionDenied,
   } = useCommand(passwd);
 
+	useEffect(() => {
+		// console.log('isRunning ', container.isRunning)
+  }, [execCommand])
+
   useEffect(() => {
-		console.log('Actions => useEffect')
+    // console.log('Actions => useEffect')
     if (cmdPermissionDenied) {
       setPermissionDenied(true)
-			setCmdPermissionDenied(false)
+      setCmdPermissionDenied(false)
     }
   }, [cmdPermissionDenied])
-  
-	useEffect(() => {
+
+  useEffect(() => {
     if (error) {
       alertMessage('error', error)
     } else {
@@ -97,21 +132,21 @@ const Actions = ({container, passwd, permissionDenied, setPermissionDenied, exec
 
   const start = () => {
     startContainer(container.id);
-    setExecCommand('startContainer'.concat("-", container.id))
+    // setExecCommand('startContainer'.concat("-", container.id))
   }
 
   const stop = () => {
     stopContainer(container.id);
-    setExecCommand('stopContainer'.concat("-", container.id))
+    // setExecCommand('stopContainer'.concat("-", container.id))
   }
 
   const remove = () => {
     removeContainer(container.id);
-    setExecCommand('removeContainer'.concat("-", container.id))
+    // setExecCommand('removeContainer'.concat("-", container.id))
   }
 
   return (
-    <SimpleGrid columns={[1, 2, 3, 4]} spacing={6}>
+    <SimpleGrid columns={[1, 2, 3, 4]} spacing={1}>
       <Button
         title='Show logs'
         // onClick={() => showContainer(container.id)}

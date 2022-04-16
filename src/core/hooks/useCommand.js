@@ -1,12 +1,18 @@
-import { useState } from 'react';
-import command from "../commands";
+import { useEffect, useState } from 'react';
+import { docker, listTest } from "../commands";
 
 const { exec } = window.require("child_process");
 
 const useCommand = (userPassword) => {
+
   const [error, setError] = useState('');
   const [containers, setContainers] = useState([]);
   const [cmdPermissionDenied, setCmdPermissionDenied] = useState(false);
+
+	useEffect(() => {
+		console.log(containers)
+		setContainers(containers)
+	}, [containers])
 
   const handleError = (err) => {
     console.log(err)
@@ -20,14 +26,31 @@ const useCommand = (userPassword) => {
     }
   }
 
+	// const execTest = async () => {
+	// 	return new Promise((resolve) => {
+	// 		setTimeout(resolve, 500);
+	// 	}).then(() => {
+	// 		const newList = listTest
+	// 		newList[0].isRunning = newList[0].isRunning ? false : true
+	// 		newList[1].isRunning = newList[1].isRunning ? false : true
+	// 		setContainers(newList)
+	// 	})
+	// }
+
   const fetchContainers = () => {
+    console.log("useCommand => fetchContainers")
+		// execTest()
     exec(
-      cmd(command.listContainers), (error, stdout, stderr) => {
+      cmd(docker.listContainers), (error, stdout, stderr) => {
         if (error) {
           addErros(error);
         } else {
+					const newList = listTest
+					newList[0].isRunning = newList[0].isRunning ? false : true
+					newList[1].isRunning = newList[1].isRunning ? false : true
+          setContainers(newList);
           // console.error('stderr:', stderr);
-          setContainers(parseCmdLsToArray(stdout));
+          // setContainers(parseCmdLsToArray(stdout));
           removeErros()
         }
       }
@@ -35,24 +58,28 @@ const useCommand = (userPassword) => {
   }
 
   const startContainer = (id) => {
+		// execTest()
     exec(
-      cmdWithId(command.startContainer, id), (error, stdout, stderr) => {
+      cmdWithId(docker.startContainer, id), (error, stdout, stderr) => {
         if (error) {
           addErros(error);
         } else {
           removeErros()
+          fetchContainers()
         }
       }
     );
   }
 
   const stopContainer = (id) => {
+		// execTest()
     exec(
-      cmdWithId(command.stopContainer, id), (error, stdout, stderr) => {
+      cmdWithId(docker.stopContainer, id), (error, stdout, stderr) => {
         if (error) {
           addErros(error);
         } else {
           removeErros()
+          fetchContainers()
         }
       }
     );
@@ -60,11 +87,12 @@ const useCommand = (userPassword) => {
 
   const removeContainer = (id) => {
     exec(
-      cmdWithId(command.removeContainer, id), (error, stdout, stderr) => {
+      cmdWithId(docker.removeContainer, id), (error, stdout, stderr) => {
         if (error) {
           addErros(error);
         } else {
           removeErros()
+          fetchContainers()
         }
       }
     );
@@ -91,14 +119,15 @@ const useCommand = (userPassword) => {
 
   return {
     error,
-		setError,
+    setError,
     containers,
+    setContainers,
     stopContainer,
     startContainer,
     fetchContainers,
     removeContainer,
     cmdPermissionDenied,
-		setCmdPermissionDenied
+    setCmdPermissionDenied
   }
 }
 
@@ -153,8 +182,7 @@ const parseCmdLsToArray = (cmdLs) => {
     if (item.id && !item.id.includes("CONTAINER ID")) {
       return item
     }
-  }
-  );
+  });
 }
 
 export default useCommand

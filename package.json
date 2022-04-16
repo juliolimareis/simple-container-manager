@@ -20,8 +20,8 @@
     "electrin": "^0.0.1-security",
     "electron-is-dev": "^2.0.0",
     "framer-motion": "^6.2.9",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
     "react-scripts": "5.0.0",
     "save": "^2.4.0",
@@ -40,7 +40,7 @@
     "electron:serve": "concurrently -k \"cross-env BROWSER=none npm start\" \"npm run electron:dev\"",
     "electron:build": "npm build && electron-builder --mac --linux -c.extraMetadata.main=build/main.js",
     "electron:start": "wait-on tcp:3111 && electron .",
-    "electron:dev": "wait-on tcp:192.168.1.101:3111 && electron ."
+    "electron:dev": "wait-on tcp:192.168.1.99:3111 && electron ."
   },
   "build": {
     "extends": null,

@@ -7,26 +7,26 @@ import { FormControl, FormErrorMessage, ModalFooter, Input, ModalContent, ModalH
 const App = () => {
   const alertMessage = useAlert();
   const refPasswd = useRef(null);
-	const [passwd, setPasswd] = useState('')
+  const [passwd, setPasswd] = useState('')
   const [execCommand, setExecCommand] = useState('')
-  const [modalPasswdOpen, setIsModalPasswdOpen] = useState(false);
+  const [modalPasswdOpen, setIsModalPasswdOpen] = useState(true);
   const [permissionDenied, setPermissionDenied] = useState(false)
 
   useEffect(() => {
-		console.log('useEffect => App')
+    console.log('useEffect => App')
     if (permissionDenied) {
       setIsModalPasswdOpen(true)
     }
   }, [permissionDenied])
 
   const onSubmit = () => {
-    if (refPasswd.current.value !== '') {
-			setPasswd(refPasswd.current.value)
+    if (refPasswd.current.value && refPasswd.current.value !== '') {
+      setPasswd(refPasswd.current.value)
       setIsModalPasswdOpen(false)
       setPermissionDenied(false)
-    }else{
-			alertMessage('error','Password is required')
-		}
+    } else {
+      alertMessage('error', 'Password is required')
+    }
   }
 
   const handleKeyDown = (event) => {
@@ -43,12 +43,12 @@ const App = () => {
         Containers
       </Heading>
       <ContainerList
-				passwd={passwd}
-				execCommand={execCommand}
-				setExecCommand={setExecCommand}
-				permissionDenied={permissionDenied}
-				setPermissionDenied={setPermissionDenied}
-			/>
+        passwd={passwd}
+        execCommand={execCommand}
+        setExecCommand={setExecCommand}
+        permissionDenied={permissionDenied}
+        setPermissionDenied={setPermissionDenied}
+      />
 
       <Modal
         isOpen={modalPasswdOpen}
@@ -68,8 +68,8 @@ const App = () => {
 
             <FormControl>
               <Input
-								ref={refPasswd}
-								required
+                ref={refPasswd}
+                required
                 autoFocus
                 type='password'
                 placeholder='sudo password'
