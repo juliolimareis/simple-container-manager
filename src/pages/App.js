@@ -1,6 +1,5 @@
 import useAlert from '../core/hooks/useAlert.ts';
-import { SystemContext } from '../core/SystemContext';
-import { useState, useContext, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ContainerList from '../components/ContainerList';
 import { FormControl, FormErrorMessage, ModalFooter, Input, ModalContent, ModalHeader, ModalCloseButton, ModalOverlay, Modal, ModalBody, Text, Button, Box, Heading } from '@chakra-ui/react'
 
@@ -8,8 +7,7 @@ const App = () => {
   const alertMessage = useAlert();
   const refPasswd = useRef(null);
   const [passwd, setPasswd] = useState('')
-  const [execCommand, setExecCommand] = useState('')
-  const [modalPasswdOpen, setIsModalPasswdOpen] = useState(true);
+  const [modalPasswdOpen, setIsModalPasswdOpen] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false)
 
   useEffect(() => {
@@ -35,8 +33,6 @@ const App = () => {
     }
   }
 
-  const isError = passwd === ''
-
   return (
     <Box textAlign='center' p={3}>
       <Heading as="h3" fontSize={20} mb={4}>
@@ -44,8 +40,6 @@ const App = () => {
       </Heading>
       <ContainerList
         passwd={passwd}
-        execCommand={execCommand}
-        setExecCommand={setExecCommand}
         permissionDenied={permissionDenied}
         setPermissionDenied={setPermissionDenied}
       />

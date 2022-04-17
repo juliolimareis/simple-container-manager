@@ -1,49 +1,79 @@
+import { useState, useEffect } from 'react';
 import { AiOutlineFileText } from 'react-icons/ai'
 import useAlert from '../core/hooks/useAlert.ts';
-import useCommand from '../core/hooks/useCommand';
-import { SystemContext } from '../core/SystemContext';
-import { useState, useEffect, useContext } from 'react';
+import DockerCommand from '../core/dockerCommand'
 import { BsFillPlayFill, BsStopFill, BsFillTrashFill } from 'react-icons/bs'
 import { Text, SimpleGrid, Button, Box, TableContainer, Table, TableCaption, Thead, Tr, Td, Th, Tbody, Tfoot } from '@chakra-ui/react'
 
 const ContainerList = ({
   passwd,
-  execCommand,
-  setExecCommand,
   permissionDenied,
   setPermissionDenied,
 }) => {
-  // const { passwd, setPermissionDenied, execCommand } = useContext(SystemContext)
+
+  const alertMessage = useAlert()
+
   const {
-    containers,
-    setContainers,
-    fetchContainers,
-    cmdPermissionDenied,
-    setCmdPermissionDenied
-  } = useCommand(passwd);
+    fetchContainer,
+    stopContainer,
+    startContainer,
+    removeContainer
+  } = DockerCommand();
 
   const [containerList, setContainerList] = useState([])
 
   useEffect(() => {
-    if (containerList !== containers) {
-      setContainerList(containers)
+    if (!permissionDenied) {
+      fetch()
     }
-  }, [containers])
+  }, [passwd, permissionDenied])
 
-  useEffect(() => {
-    console.log('useEffect => ContainerList: passwd: ', passwd)
-    if (cmdPermissionDenied) {
-      console.log('ContainerList: if: isPermissionDenied', cmdPermissionDenied)
+  const fetch = () => {
+    fetchContainer(passwd).then(response => {
+      // console.log(response)
+      setContainerList(response.message)
+    }).catch(error => handleError(error))
+  }
+
+  const start = (container) => {
+    startContainer(container.id, passwd).then(() => {
+      fetch()
+      alertMessage(
+        "success",
+        "Container ".concat(container.name, " is running.")
+      )
+    }).catch(error => handleError(error))
+  }
+
+  const stop = (container) => {
+    stopContainer(container.id, passwd).then(() => {
+      fetch()
+      alertMessage(
+        "success",
+        "Container ".concat(container.name, " is stopped.")
+      )
+    }).catch(error => handleError(error))
+  }
+
+  const remove = (container) => {
+    removeContainer(container.id, passwd).then(() => {
+      fetch()
+      alertMessage(
+        "success",
+        "Container ".concat(container.name, " has been removed.")
+      )
+    }).catch(error => handleError(error))
+  }
+
+  const handleError = (error) => {
+    if (error.isPermissionDenied) {
       setPermissionDenied(true)
-      setCmdPermissionDenied(false)
+      console.log('Erro permisson denied!')
+    } else {
+      alertMessage('error', error.message)
+      console.log(error)
     }
-  }, [cmdPermissionDenied])
-
-  useEffect(() => {
-		if(passwd){
-			fetchContainers()
-		}
-  }, [permissionDenied, passwd])
+  }
 
   return (
     <TableContainer>
@@ -67,83 +97,28 @@ const ContainerList = ({
                 <Td>{container.status}</Td>
                 <Td>
                   <Actions
-                    passwd={passwd}
                     container={container}
-                    containers={containers}
-                    setContainers={setContainers}
-                    fetchContainers={fetchContainers}
-                    execCommand={execCommand}
-                    setExecCommand={setExecCommand}
-                    permissionDenied={permissionDenied}
-                    setPermissionDenied={setPermissionDenied}
+                    startContainer={start}
+                    stopContainer={stop}
+                    removeContainer={remove}
                   />
                 </Td>
               </Tr>
             ))
           }
-        </Tbody>
 
+        </Tbody>
       </Table>
     </TableContainer>
   )
 }
 
 const Actions = ({
-  passwd,
   container,
-  containers,
-  setContainers,
-  execCommand,
-  setExecCommand,
-  fetchContainers,
-  permissionDenied,
-  setPermissionDenied,
+  stopContainer,
+  startContainer,
+  removeContainer,
 }) => {
-  // const { passwd, setPermissionDenied, setExecCommand } = useContext(SystemContext)
-  const alertMessage = useAlert()
-  const {
-    error,
-    stopContainer,
-    startContainer,
-    removeContainer,
-    cmdPermissionDenied,
-    setCmdPermissionDenied,
-  } = useCommand(passwd);
-
-	useEffect(() => {
-		// console.log('isRunning ', container.isRunning)
-  }, [execCommand])
-
-  useEffect(() => {
-    // console.log('Actions => useEffect')
-    if (cmdPermissionDenied) {
-      setPermissionDenied(true)
-      setCmdPermissionDenied(false)
-    }
-  }, [cmdPermissionDenied])
-
-  useEffect(() => {
-    if (error) {
-      alertMessage('error', error)
-    } else {
-      // alertMessage('success', container.name.concat(' started!'))
-    }
-  }, [error])
-
-  const start = () => {
-    startContainer(container.id);
-    // setExecCommand('startContainer'.concat("-", container.id))
-  }
-
-  const stop = () => {
-    stopContainer(container.id);
-    // setExecCommand('stopContainer'.concat("-", container.id))
-  }
-
-  const remove = () => {
-    removeContainer(container.id);
-    // setExecCommand('removeContainer'.concat("-", container.id))
-  }
 
   return (
     <SimpleGrid columns={[1, 2, 3, 4]} spacing={1}>
@@ -156,21 +131,21 @@ const Actions = ({
       </Button>
       <Button
         title='Start container'
-        onClick={start}
+        onClick={() => startContainer(container)}
         disabled={container.isRunning}
       >
         <BsFillPlayFill color='green' />
       </Button>
       <Button
         title='Stop container'
-        onClick={stop}
+        onClick={() => stopContainer(container)}
         disabled={!container.isRunning}
       >
         <BsStopFill color='orange' />
       </Button>
       <Button
         title='Remove container'
-        onClick={remove}
+        onClick={() => removeContainer(container)}
         disabled={container.isRunning}
       >
         <BsFillTrashFill color='red' />
