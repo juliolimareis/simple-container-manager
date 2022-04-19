@@ -1,9 +1,17 @@
-import { useState, useEffect } from 'react';
-import { AiOutlineFileText } from 'react-icons/ai'
-import useAlert from '../core/hooks/useAlert.ts';
+import { useState, useEffect } from 'react'
+
+import Terminal from '../components/Terminal'
+import TableContainer from '../components/TableContainer'
+
+import useAlert from '../core/hooks/useAlert.ts'
 import DockerCommand from '../core/dockerCommand'
-import { BsFillPlayFill, BsStopFill, BsFillTrashFill } from 'react-icons/bs'
-import { Text, SimpleGrid, Button, Box, TableContainer, Table, TableCaption, Thead, Tr, Td, Th, Tbody, Tfoot } from '@chakra-ui/react'
+
+import { BiRefresh } from 'react-icons/bi'
+
+import {
+  Box,
+  Heading,
+} from '@chakra-ui/react'
 
 const ContainerList = ({
   passwd,
@@ -14,50 +22,102 @@ const ContainerList = ({
   const alertMessage = useAlert()
 
   const {
-    fetchContainer,
     stopContainer,
+    fetchContainer,
     startContainer,
-    removeContainer
+    removeContainer,
+    tailLogsContainer,
+    isPermissionDenied,
   } = DockerCommand();
 
+  const [tailLogs, setTailLogs] = useState(undefined)
   const [containerList, setContainerList] = useState([])
+  const [terminalLines, setTerminalLines] = useState([])
+  const [openTerminal, setOpenTerminal] = useState(false)
+  const [lastCommand, setLastCommand] = useState(undefined)
+  const [containerSelected, setContainerSelected] = useState(undefined)
+  const [containerSelectedLogs, setContainerSelectedLogs] = useState(undefined)
 
   useEffect(() => {
     if (!permissionDenied) {
-      fetch()
+      if (lastCommand) {
+        execFunction[lastCommand](containerSelected)
+        setLastCommand(undefined)
+      } else {
+        getAllContainers()
+      }
     }
   }, [passwd, permissionDenied])
 
-  const fetch = () => {
+  useEffect(() => {
+    if (openTerminal && tailLogs) {
+      tailLogs.stdout.setEncoding('utf8');
+      tailLogs.stdout.on('data', data => {
+        setTerminalLines(`${data}`.split('\n').reverse())
+      })
+      tailLogs.on('error', error => {
+        if (isPermissionDenied(`${error}`)) {
+          setPermissionDenied(true)
+        }
+        console.log(error)
+      })
+    }
+  }, [tailLogs])
+
+  const getAllContainers = () => {
+    setContainerList([])
     fetchContainer(passwd).then(response => {
-      // console.log(response)
       setContainerList(response.message)
-    }).catch(error => handleError(error))
+    }).catch(error => handleError(error, 'getAllContainers'))
+  }
+
+  const tailContainer = (container) => {
+    setTailLogs(tailLogsContainer(container.id, passwd))
+    setOpenTerminal(true)
+    setContainerSelected(container)
+    setContainerSelectedLogs(container)
   }
 
   const start = (container) => {
+    setContainerSelected(container)
     startContainer(container.id, passwd).then(() => {
-      fetch()
+      getAllContainers()
       alertMessage(
         "success",
         "Container ".concat(container.name, " is running.")
       )
-    }).catch(error => handleError(error))
+    }).catch(error => handleError(error, 'start'))
+  }
+
+  const restart = (container) => {
+    setContainerSelected(container)
+    startContainer(container.id, passwd).then(() => {
+      getAllContainers()
+      alertMessage(
+        "success",
+        String(container.name).concat(" has been restarted.")
+      )
+    }).catch(error => handleError(error, 'restart'))
   }
 
   const stop = (container) => {
+    setContainerSelected(container)
     stopContainer(container.id, passwd).then(() => {
-      fetch()
+      getAllContainers()
       alertMessage(
         "success",
         "Container ".concat(container.name, " is stopped.")
       )
-    }).catch(error => handleError(error))
+      if (isContainerSelectLogs(container)) {
+        disableTerminalLogs(container)
+      }
+    }).catch(error => handleError(error, 'stop'))
   }
 
   const remove = (container) => {
+    setContainerSelected(container)
     removeContainer(container.id, passwd).then(() => {
-      fetch()
+      getAllContainers()
       alertMessage(
         "success",
         "Container ".concat(container.name, " has been removed.")
@@ -65,110 +125,63 @@ const ContainerList = ({
     }).catch(error => handleError(error))
   }
 
-  const handleError = (error) => {
+  const handleError = (error, lastCommandName) => {
     if (error.isPermissionDenied) {
       setPermissionDenied(true)
-      console.log('Erro permisson denied!')
+      setLastCommand(lastCommandName)
     } else {
       alertMessage('error', error.message)
       console.log(error)
     }
   }
 
-  return (
-    <TableContainer>
-      <Table colorScheme='teal'>
+  const isContainerSelectLogs = (container) => {
+    if (containerSelectedLogs && container.id == containerSelectedLogs.id) {
+      return true
+    } return false
+  }
 
-        <Thead>
-          <Tr>
-            <Th>Id</Th>
-            <Th>Name</Th>
-            <Th>Status</Th>
-            <Th>Actions</Th>
-          </Tr>
-        </Thead>
+  const execFunction = {
+    stop,
+    start,
+    remove,
+    restart,
+    getAllContainers,
+  }
 
-        <Tbody>
-          {
-            containerList.map((container, i) => (
-              <Tr key={i}>
-                <Td><Id container={container} /></Td>
-                <Td>{container.name}</Td>
-                <Td>{container.status}</Td>
-                <Td>
-                  <Actions
-                    container={container}
-                    startContainer={start}
-                    stopContainer={stop}
-                    removeContainer={remove}
-                  />
-                </Td>
-              </Tr>
-            ))
-          }
-
-        </Tbody>
-      </Table>
-    </TableContainer>
-  )
-}
-
-const Actions = ({
-  container,
-  stopContainer,
-  startContainer,
-  removeContainer,
-}) => {
+  const disableTerminalLogs = (container) => {
+    if (isContainerSelectLogs(container)) {
+      setOpenTerminal(false)
+      setTailLogs(undefined)
+      setContainerSelectedLogs(undefined)
+    }
+  }
 
   return (
-    <SimpleGrid columns={[1, 2, 3, 4]} spacing={1}>
-      <Button
-        title='Show logs'
-        // onClick={() => showContainer(container.id)}
-        disabled={!container.isRunning}
-      >
-        <AiOutlineFileText color='white' />
-      </Button>
-      <Button
-        title='Start container'
-        onClick={() => startContainer(container)}
-        disabled={container.isRunning}
-      >
-        <BsFillPlayFill color='green' />
-      </Button>
-      <Button
-        title='Stop container'
-        onClick={() => stopContainer(container)}
-        disabled={!container.isRunning}
-      >
-        <BsStopFill color='orange' />
-      </Button>
-      <Button
-        title='Remove container'
-        onClick={() => removeContainer(container)}
-        disabled={container.isRunning}
-      >
-        <BsFillTrashFill color='red' />
-      </Button>
-    </SimpleGrid>
-  )
-}
+    <Box>
+      {
+        openTerminal && (
+          <Terminal container={containerSelectedLogs} terminalLines={terminalLines} />
+        )
+      }
 
-const Id = ({ container }) => {
-  return (
-    <Box as='span' textAlign='center' display='flex'>
-      <Box
-        w={2}
-        h={2}
-        mr={2}
-        mt={1}
-        borderRadius='100%'
-        backgroundColor={
-          container.isRunning ? '#04aa6d' : 'red'
-        }
-        title={container.isRunning ? 'Running' : 'Stopped'}
+      <Box textAlign='center'>
+        <Heading as="h3" fontSize={20} mt={6}>
+          Containers
+          <BiRefresh onClick={getAllContainers} color="#04aacd" fontSize={25} cursor='pointer' title="refresh container list" />
+        </Heading>
+      </Box>
+
+      <TableContainer
+        stopContainer={stop}
+        startContainer={start}
+        restartContainer={restart}
+        removeContainer={remove}
+        containerList={containerList}
+        tailContainer={tailContainer}
+        disableTerminalLogs={disableTerminalLogs}
+        containerSelectedLogs={containerSelectedLogs}
       />
-      <Text>{container.id}</Text>
     </Box>
   )
 }

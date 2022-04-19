@@ -1,6 +1,6 @@
 import { docker } from "./commands";
 
-const { exec } = window.require("child_process");
+const { exec, spawn } = window.require("child_process");
 
 const DockerCommand = () => {
 
@@ -26,7 +26,21 @@ const DockerCommand = () => {
           if (error) {
             reject(handleErros(error))
           } else {
-            resolve(handleCommand(stdout))
+            resolve()
+          }
+        }
+      );
+    })
+  )
+
+  const restartContainer = (id, userPassword) => (
+    new Promise((resolve, reject) => {
+      exec(
+        cmdWithId(docker.restartContainer, id, userPassword), (error, stdout, stderr) => {
+          if (error) {
+            reject(handleErros(error))
+          } else {
+            resolve()
           }
         }
       );
@@ -40,7 +54,7 @@ const DockerCommand = () => {
           if (error) {
             reject(handleErros(error))
           } else {
-            resolve(handleCommand(stdout))
+            resolve()
           }
         }
       );
@@ -54,7 +68,26 @@ const DockerCommand = () => {
           if (error) {
             reject(handleErros(error))
           } else {
-            resolve(handleCommand(stdout))
+            resolve()
+          }
+        }
+      );
+    })
+  )
+
+  //return object stdout with event.on
+  const tailLogsContainer = (id, userPassword) => (
+    spawn(cmdWithId(docker.tailLogs, id, userPassword), [], { shell: true })
+  )
+
+  const logsContainer = (id, userPassword) => (
+    new Promise((resolve, reject) => {
+      exec(
+        cmdWithId(docker.logs, id, userPassword), (error, stdout, stderr) => {
+          if (error) {
+            reject(handleErros(error))
+          } else {
+            resolve(stdout.split('\n').reverse())
           }
         }
       );
@@ -88,7 +121,7 @@ const DockerCommand = () => {
   )
 
   const removePasswdInsertInErrorMessage = (error) => {
-    return error.split('|')[1]
+    return error.split('|')[1].split('-S')[1]
   }
 
   const cmd = (cmdLine, userPassword) => {
@@ -100,10 +133,14 @@ const DockerCommand = () => {
   }
 
   return {
+    restartContainer,
     fetchContainer,
     startContainer,
     stopContainer,
-    removeContainer
+    removeContainer,
+    logsContainer,
+    tailLogsContainer,
+    isPermissionDenied,
   }
 }
 

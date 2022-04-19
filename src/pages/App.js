@@ -1,85 +1,50 @@
+import { useState, useEffect, } from 'react';
+
 import useAlert from '../core/hooks/useAlert.ts';
-import { useState, useEffect, useRef } from 'react';
+
 import ContainerList from '../components/ContainerList';
-import { FormControl, FormErrorMessage, ModalFooter, Input, ModalContent, ModalHeader, ModalCloseButton, ModalOverlay, Modal, ModalBody, Text, Button, Box, Heading } from '@chakra-ui/react'
+import ModalFormPassword from '../components/ModalFormPassword'
+
+import {
+  Box,
+} from '@chakra-ui/react'
 
 const App = () => {
   const alertMessage = useAlert();
-  const refPasswd = useRef(null);
   const [passwd, setPasswd] = useState('')
-  const [modalPasswdOpen, setIsModalPasswdOpen] = useState(false);
+  const [modalPasswdOpen, setModalPasswdOpen] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false)
 
   useEffect(() => {
-    console.log('useEffect => App')
     if (permissionDenied) {
-      setIsModalPasswdOpen(true)
+      setModalPasswdOpen(true)
     }
   }, [permissionDenied])
 
-  const onSubmit = () => {
-    if (refPasswd.current.value && refPasswd.current.value !== '') {
-      setPasswd(refPasswd.current.value)
-      setIsModalPasswdOpen(false)
+  const onSubmit = (value) => {
+    if (value && value !== '') {
+      setPasswd(value)
+      setModalPasswdOpen(false)
       setPermissionDenied(false)
     } else {
       alertMessage('error', 'Password is required')
     }
   }
 
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      onSubmit()
-    }
-  }
-
   return (
     <Box textAlign='center' p={3}>
-      <Heading as="h3" fontSize={20} mb={4}>
-        Containers
-      </Heading>
+
       <ContainerList
         passwd={passwd}
         permissionDenied={permissionDenied}
         setPermissionDenied={setPermissionDenied}
       />
 
-      <Modal
-        isOpen={modalPasswdOpen}
-        closeOnEsc={false}
-        closeOnOverlayClick={false}
-        onClose={() => setIsModalPasswdOpen(false)}
-      >
-        <ModalOverlay />
-
-        <ModalContent>
-          <ModalHeader textAlign='center'>
-            Permission Admin
-          </ModalHeader>
-
-          <ModalBody>
-            <Text p={3}>To continue you need the super user password:</Text>
-
-            <FormControl>
-              <Input
-                ref={refPasswd}
-                required
-                autoFocus
-                type='password'
-                placeholder='sudo password'
-                onKeyDown={handleKeyDown}
-              />
-
-            </FormControl>
-
-          </ModalBody>
-
-          <ModalFooter>
-            <Button onClick={onSubmit}>Confirm</Button>
-          </ModalFooter>
-
-        </ModalContent>
-      </Modal>
+      <ModalFormPassword
+        onSubmit={onSubmit}
+        modalPasswdOpen={modalPasswdOpen}
+        setModalPasswdOpen={setModalPasswdOpen}
+      />
 
     </Box>
   );
