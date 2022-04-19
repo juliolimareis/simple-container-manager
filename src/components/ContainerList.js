@@ -1,199 +1,187 @@
-import { AiOutlineFileText } from 'react-icons/ai'
-import useAlert from '../core/hooks/useAlert.ts';
-import useCommand from '../core/hooks/useCommand';
-import { SystemContext } from '../core/SystemContext';
-import { useState, useEffect, useContext } from 'react';
-import { BsFillPlayFill, BsStopFill, BsFillTrashFill } from 'react-icons/bs'
-import { Text, SimpleGrid, Button, Box, TableContainer, Table, TableCaption, Thead, Tr, Td, Th, Tbody, Tfoot } from '@chakra-ui/react'
+import { useState, useEffect } from 'react'
+
+import Terminal from '../components/Terminal'
+import TableContainer from '../components/TableContainer'
+
+import useAlert from '../core/hooks/useAlert.ts'
+import DockerCommand from '../core/dockerCommand'
+
+import { BiRefresh } from 'react-icons/bi'
+
+import {
+  Box,
+  Heading,
+} from '@chakra-ui/react'
 
 const ContainerList = ({
   passwd,
-  execCommand,
-  setExecCommand,
   permissionDenied,
   setPermissionDenied,
 }) => {
-  // const { passwd, setPermissionDenied, execCommand } = useContext(SystemContext)
-  const {
-    containers,
-    setContainers,
-    fetchContainers,
-    cmdPermissionDenied,
-    setCmdPermissionDenied
-  } = useCommand(passwd);
 
-  const [containerList, setContainerList] = useState([])
-
-  useEffect(() => {
-    if (containerList !== containers) {
-      setContainerList(containers)
-    }
-  }, [containers])
-
-  useEffect(() => {
-    console.log('useEffect => ContainerList: passwd: ', passwd)
-    if (cmdPermissionDenied) {
-      console.log('ContainerList: if: isPermissionDenied', cmdPermissionDenied)
-      setPermissionDenied(true)
-      setCmdPermissionDenied(false)
-    }
-  }, [cmdPermissionDenied])
-
-  useEffect(() => {
-		if(passwd){
-			fetchContainers()
-		}
-  }, [permissionDenied, passwd])
-
-  return (
-    <TableContainer>
-      <Table colorScheme='teal'>
-
-        <Thead>
-          <Tr>
-            <Th>Id</Th>
-            <Th>Name</Th>
-            <Th>Status</Th>
-            <Th>Actions</Th>
-          </Tr>
-        </Thead>
-
-        <Tbody>
-          {
-            containerList.map((container, i) => (
-              <Tr key={i}>
-                <Td><Id container={container} /></Td>
-                <Td>{container.name}</Td>
-                <Td>{container.status}</Td>
-                <Td>
-                  <Actions
-                    passwd={passwd}
-                    container={container}
-                    containers={containers}
-                    setContainers={setContainers}
-                    fetchContainers={fetchContainers}
-                    execCommand={execCommand}
-                    setExecCommand={setExecCommand}
-                    permissionDenied={permissionDenied}
-                    setPermissionDenied={setPermissionDenied}
-                  />
-                </Td>
-              </Tr>
-            ))
-          }
-        </Tbody>
-
-      </Table>
-    </TableContainer>
-  )
-}
-
-const Actions = ({
-  passwd,
-  container,
-  containers,
-  setContainers,
-  execCommand,
-  setExecCommand,
-  fetchContainers,
-  permissionDenied,
-  setPermissionDenied,
-}) => {
-  // const { passwd, setPermissionDenied, setExecCommand } = useContext(SystemContext)
   const alertMessage = useAlert()
+
   const {
-    error,
     stopContainer,
+    fetchContainer,
     startContainer,
     removeContainer,
-    cmdPermissionDenied,
-    setCmdPermissionDenied,
-  } = useCommand(passwd);
+    tailLogsContainer,
+    isPermissionDenied,
+  } = DockerCommand();
 
-	useEffect(() => {
-		// console.log('isRunning ', container.isRunning)
-  }, [execCommand])
-
-  useEffect(() => {
-    // console.log('Actions => useEffect')
-    if (cmdPermissionDenied) {
-      setPermissionDenied(true)
-      setCmdPermissionDenied(false)
-    }
-  }, [cmdPermissionDenied])
+  const [tailLogs, setTailLogs] = useState(undefined)
+  const [containerList, setContainerList] = useState([])
+  const [terminalLines, setTerminalLines] = useState([])
+  const [openTerminal, setOpenTerminal] = useState(false)
+  const [lastCommand, setLastCommand] = useState(undefined)
+  const [containerSelected, setContainerSelected] = useState(undefined)
+  const [containerSelectedLogs, setContainerSelectedLogs] = useState(undefined)
 
   useEffect(() => {
-    if (error) {
-      alertMessage('error', error)
-    } else {
-      // alertMessage('success', container.name.concat(' started!'))
+    if (!permissionDenied) {
+      if (lastCommand) {
+        execFunction[lastCommand](containerSelected)
+        setLastCommand(undefined)
+      } else {
+        getAllContainers()
+      }
     }
-  }, [error])
+  }, [passwd, permissionDenied])
 
-  const start = () => {
-    startContainer(container.id);
-    // setExecCommand('startContainer'.concat("-", container.id))
-  }
-
-  const stop = () => {
-    stopContainer(container.id);
-    // setExecCommand('stopContainer'.concat("-", container.id))
-  }
-
-  const remove = () => {
-    removeContainer(container.id);
-    // setExecCommand('removeContainer'.concat("-", container.id))
-  }
-
-  return (
-    <SimpleGrid columns={[1, 2, 3, 4]} spacing={1}>
-      <Button
-        title='Show logs'
-        // onClick={() => showContainer(container.id)}
-        disabled={!container.isRunning}
-      >
-        <AiOutlineFileText color='white' />
-      </Button>
-      <Button
-        title='Start container'
-        onClick={start}
-        disabled={container.isRunning}
-      >
-        <BsFillPlayFill color='green' />
-      </Button>
-      <Button
-        title='Stop container'
-        onClick={stop}
-        disabled={!container.isRunning}
-      >
-        <BsStopFill color='orange' />
-      </Button>
-      <Button
-        title='Remove container'
-        onClick={remove}
-        disabled={container.isRunning}
-      >
-        <BsFillTrashFill color='red' />
-      </Button>
-    </SimpleGrid>
-  )
-}
-
-const Id = ({ container }) => {
-  return (
-    <Box as='span' textAlign='center' display='flex'>
-      <Box
-        w={2}
-        h={2}
-        mr={2}
-        mt={1}
-        borderRadius='100%'
-        backgroundColor={
-          container.isRunning ? '#04aa6d' : 'red'
+  useEffect(() => {
+    if (openTerminal && tailLogs) {
+      tailLogs.stdout.setEncoding('utf8');
+      tailLogs.stdout.on('data', data => {
+        setTerminalLines(`${data}`.split('\n').reverse())
+      })
+      tailLogs.on('error', error => {
+        if (isPermissionDenied(`${error}`)) {
+          setPermissionDenied(true)
         }
-        title={container.isRunning ? 'Running' : 'Stopped'}
+        console.log(error)
+      })
+    }
+  }, [tailLogs])
+
+  const getAllContainers = () => {
+    setContainerList([])
+    fetchContainer(passwd).then(response => {
+      setContainerList(response.message)
+    }).catch(error => handleError(error, 'getAllContainers'))
+  }
+
+  const tailContainer = (container) => {
+    setTailLogs(tailLogsContainer(container.id, passwd))
+    setOpenTerminal(true)
+    setContainerSelected(container)
+    setContainerSelectedLogs(container)
+  }
+
+  const start = (container) => {
+    setContainerSelected(container)
+    startContainer(container.id, passwd).then(() => {
+      getAllContainers()
+      alertMessage(
+        "success",
+        "Container ".concat(container.name, " is running.")
+      )
+    }).catch(error => handleError(error, 'start'))
+  }
+
+  const restart = (container) => {
+    setContainerSelected(container)
+    startContainer(container.id, passwd).then(() => {
+      getAllContainers()
+      alertMessage(
+        "success",
+        String(container.name).concat(" has been restarted.")
+      )
+    }).catch(error => handleError(error, 'restart'))
+  }
+
+  const stop = (container) => {
+    setContainerSelected(container)
+    stopContainer(container.id, passwd).then(() => {
+      getAllContainers()
+      alertMessage(
+        "success",
+        "Container ".concat(container.name, " is stopped.")
+      )
+      if (isContainerSelectLogs(container)) {
+        disableTerminalLogs(container)
+      }
+    }).catch(error => handleError(error, 'stop'))
+  }
+
+  const remove = (container) => {
+    setContainerSelected(container)
+    removeContainer(container.id, passwd).then(() => {
+      getAllContainers()
+      alertMessage(
+        "success",
+        "Container ".concat(container.name, " has been removed.")
+      )
+    }).catch(error => handleError(error))
+  }
+
+  const handleError = (error, lastCommandName) => {
+    if (error.isPermissionDenied) {
+      setPermissionDenied(true)
+      setLastCommand(lastCommandName)
+    } else {
+      alertMessage('error', error.message)
+      console.log(error)
+    }
+  }
+
+  const isContainerSelectLogs = (container) => {
+    if (containerSelectedLogs && container.id == containerSelectedLogs.id) {
+      return true
+    } return false
+  }
+
+  const execFunction = {
+    stop,
+    start,
+    remove,
+    restart,
+    getAllContainers,
+  }
+
+  const disableTerminalLogs = (container) => {
+    if (isContainerSelectLogs(container)) {
+      setOpenTerminal(false)
+      setTailLogs(undefined)
+      setContainerSelectedLogs(undefined)
+    }
+  }
+
+  return (
+    <Box>
+      {
+        openTerminal && (
+          <Terminal container={containerSelectedLogs} terminalLines={terminalLines} />
+        )
+      }
+
+      <Box textAlign='center'>
+        <Heading as="h3" fontSize={20} mt={6}>
+          Containers
+          <BiRefresh onClick={getAllContainers} color="#04aacd" fontSize={25} cursor='pointer' title="refresh container list" />
+        </Heading>
+      </Box>
+
+      <TableContainer
+        stopContainer={stop}
+        startContainer={start}
+        restartContainer={restart}
+        removeContainer={remove}
+        containerList={containerList}
+        tailContainer={tailContainer}
+        disableTerminalLogs={disableTerminalLogs}
+        containerSelectedLogs={containerSelectedLogs}
       />
-      <Text>{container.id}</Text>
     </Box>
   )
 }
