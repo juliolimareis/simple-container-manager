@@ -1,5 +1,6 @@
 export const docker = {
-  listContainers: "echo -e \"{password}\" | sudo -S docker container ls -a",
+  listContainersRunning: 'echo -e "{password}" | sudo -S docker container ps --format "{{.ID}}   {{.Image}}   {{.RunningFor}}   {{.Size}}   {{.Status}}   {{.Ports}}   {{.Names}}" --filter status=running',
+  listContainersStop: 'echo -e "{password}" | sudo -S docker container ps --format "{{.ID}}   {{.Image}}   {{.RunningFor}}   {{.Size}}   {{.Status}}   {{.Names}}" --filter status=exited',
   restartContainer: "echo -e \"{password}\" | sudo -S docker restart ls -a",
   startContainer: "echo -e \"{password}\" | sudo -S docker container start {id}",
   stopContainer: "echo -e \"{password}\" | sudo -S docker container stop {id}",

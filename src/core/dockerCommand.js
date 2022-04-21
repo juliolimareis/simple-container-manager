@@ -4,10 +4,25 @@ const { exec, spawn } = window.require("child_process");
 
 const DockerCommand = () => {
 
-  const fetchContainer = async (userPassword) => (
+  const fetchContainerRunning = async (userPassword) => (
     new Promise((resolve, reject) => {
       exec(
-        cmd(docker.listContainers, userPassword), (error, stdout, stderr) => {
+        cmd(docker.listContainersRunning, userPassword), (error, stdout, stderr) => {
+          if (error) {
+            // console.error('stderr:', stderr);
+            reject(handleErros(error));
+          } else {
+            resolve(handleCommand(parseCmdLsToArray(stdout)))
+          }
+        }
+      );
+    })
+  )
+
+  const fetchContainerStop = async (userPassword) => (
+    new Promise((resolve, reject) => {
+      exec(
+        cmd(docker.listContainersStop, userPassword), (error, stdout, stderr) => {
           if (error) {
             // console.error('stderr:', stderr);
             reject(handleErros(error));
@@ -134,7 +149,8 @@ const DockerCommand = () => {
 
   return {
     restartContainer,
-    fetchContainer,
+    fetchContainerRunning,
+    fetchContainerStop,
     startContainer,
     stopContainer,
     removeContainer,
@@ -145,57 +161,35 @@ const DockerCommand = () => {
 }
 
 const parseCmdLsToArray = (cmdLs) => {
-  return cmdLs.split('\n').map(line => {
-    // const [id, image, command, created, status, names, ports] = line.split('   ');
-    const lineArray = line.split('   ');
-    const infoArray = []
+  const lines = cmdLs.split('\n')
+  if (Array.isArray(lines)) {
+    //remove last line(empty)
+    lines.pop()
+    return lines.map((line) => {
+      const lineElements = line.split('   ')
 
-    lineArray.map(item => {
-      if (item.trim()) {
-        infoArray.push(item);
+      const [
+        id,
+        image,
+        runningFor,
+        size,
+        status,
+        ports,
+        name
+      ] = lineElements
+      return {
+        id,
+        image,
+        runningFor,
+        size,
+        status,
+        ports,
+        name,
+        isRunning: !`${status}`.includes('Exited')
       }
     })
-
-    if (infoArray.length < 7) {
-      infoArray.push('');
-    }
-
-    if (infoArray[4]?.indexOf('Exited') !== -1) {
-      infoArray.push(false)
-    } else {
-      infoArray.push(true)
-    }
-
-    // console.log(infoArray);
-
-    return {
-      id: infoArray[0],
-      image: infoArray[1],
-      command: infoArray[2],
-      created: infoArray[3],
-      status: infoArray[4],
-      name: infoArray[5],
-      ports: infoArray[6],
-      isRunning: infoArray[7]
-    }
-
-    // 	const [id, image, command, created, status, name, ports] = lineArray
-
-    // 	return {
-    // 		id,
-    // 		image,
-    // 		command,
-    // 		created,
-    // 		status,
-    // 		name,
-    // 		ports
-    // 	}
-
-  }).filter(item => {
-    if (item.id && !item.id.includes("CONTAINER ID")) {
-      return item
-    }
-  });
+  }
+  return []
 }
 
 export default DockerCommand

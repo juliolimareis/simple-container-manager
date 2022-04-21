@@ -23,11 +23,12 @@ const ContainerList = ({
 
   const {
     stopContainer,
-    fetchContainer,
     startContainer,
     removeContainer,
     tailLogsContainer,
     isPermissionDenied,
+    fetchContainerStop,
+    fetchContainerRunning,
   } = DockerCommand();
 
   const [tailLogs, setTailLogs] = useState(undefined)
@@ -35,6 +36,7 @@ const ContainerList = ({
   const [terminalLines, setTerminalLines] = useState([])
   const [openTerminal, setOpenTerminal] = useState(false)
   const [lastCommand, setLastCommand] = useState(undefined)
+  const [containerListStop, setContainerListStop] = useState([])
   const [containerSelected, setContainerSelected] = useState(undefined)
   const [containerSelectedLogs, setContainerSelectedLogs] = useState(undefined)
 
@@ -66,8 +68,14 @@ const ContainerList = ({
 
   const getAllContainers = () => {
     setContainerList([])
-    fetchContainer(passwd).then(response => {
+    setContainerListStop([])
+
+    fetchContainerRunning(passwd).then(response => {
       setContainerList(response.message)
+    }).catch(error => handleError(error, 'getAllContainers'))
+
+    fetchContainerStop(passwd).then(response => {
+      setContainerListStop(response.message)
     }).catch(error => handleError(error, 'getAllContainers'))
   }
 
@@ -136,7 +144,7 @@ const ContainerList = ({
   }
 
   const isContainerSelectLogs = (container) => {
-    if (containerSelectedLogs && container.id == containerSelectedLogs.id) {
+    if (containerSelectedLogs && container.id === containerSelectedLogs.id) {
       return true
     } return false
   }
@@ -182,6 +190,24 @@ const ContainerList = ({
         disableTerminalLogs={disableTerminalLogs}
         containerSelectedLogs={containerSelectedLogs}
       />
+
+      <Box textAlign='center' mt={10}>
+        <Heading as="h3" fontSize={20} mt={6}>
+          Stop Containers
+        </Heading>
+      </Box>
+
+      <TableContainer
+        stopContainer={stop}
+        startContainer={start}
+        restartContainer={restart}
+        removeContainer={remove}
+        containerList={containerListStop}
+        tailContainer={tailContainer}
+        disableTerminalLogs={disableTerminalLogs}
+        containerSelectedLogs={containerSelectedLogs}
+      />
+
     </Box>
   )
 }
