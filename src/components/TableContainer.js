@@ -27,6 +27,8 @@ const TableContainer = ({
         <Th>Id</Th>
         <Th>Name</Th>
         <Th>Status</Th>
+        <Th>Ports</Th>
+        <Th>Size</Th>
         <Th>Actions</Th>
       </Tr>
     </Thead>
@@ -38,6 +40,8 @@ const TableContainer = ({
             <Td><Id container={container} /></Td>
             <Td>{container.name}</Td>
             <Td>{container.status}</Td>
+            <Td>{container.ports}</Td>
+            <Td>{container.size}</Td>
             <Td>
               <Actions
                 container={container}
