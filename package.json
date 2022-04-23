@@ -1,6 +1,6 @@
 {
   "name": "simple-container-manager",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "private": true,
   "author": "Júlio César Lima Reis<juliolimareis@gmail.com>",
   "license": "MIT",
@@ -29,7 +29,7 @@
     "wait-on": "^6.0.1",
     "web-vitals": "^2.1.4"
   },
-  "main": "main.js",
+  "main": "public/electron.js",
   "homepage": "./",
   "scripts": {
     "start": "react-scripts start",
@@ -38,22 +38,18 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron:serve": "concurrently -k \"cross-env BROWSER=none npm start\" \"npm run electron:dev\"",
-    "electron:build": "npm build && electron-builder --mac --linux -c.extraMetadata.main=build/main.js",
+    "electron:build": "npm run build && electron-builder --linux",
     "electron:start": "wait-on tcp:3111 && electron .",
     "electron:dev": "wait-on tcp:192.168.1.99:3111 && electron ."
   },
   "build": {
-    "extends": null,
     "appId": "com.electron.simple-container-manager",
-    "files": [
-      "dist/**/*",
-      "build/**/*",
-      "node_modules/**/*",
-      "package.json"
-    ],
-    "directories": {
-      "buildResources": "assets"
-    }
+    "target": [
+      "deb",
+      "snap",
+      "rpm",
+      "tar.gz"
+    ]
   },
   "eslintConfig": {
     "extends": [
@@ -74,6 +70,10 @@
     ]
   },
   "devDependencies": {
+    "concurrently": "^7.1.0",
+    "cross-env": "^7.0.3",
+    "electron-builder": "^23.0.3",
+    "wait-on": "^6.0.1",
     "electron": "^18.0.3"
   }
 }
