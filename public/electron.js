@@ -1,4 +1,7 @@
-const { app, BrowserWindow } = require('electron')
+const {
+  app,
+  BrowserWindow
+} = require('electron')
 
 const path = require('path')
 const isDev = require('electron-is-dev')
@@ -10,17 +13,17 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-			nodeIntegration: true,
+      nodeIntegration: true,
       enableRemoteModule: true,
-			contextIsolation: false
+      contextIsolation: false
     }
   })
 
   win.loadURL(
-		isDev 
-			? 'http://localhost:3111'
-			: `file://${path.join(__dirname, '../build/index.html')}`
-		)
+    isDev
+      ? 'http://localhost:3111'
+      : `file://${path.join(__dirname, '../build/index.html')}`
+  )
 }
 
 app.whenReady().then(() => {
@@ -35,6 +38,6 @@ app.on('window-all-closed', () => {
 
 app.on('active', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-		createWindow()
-	}
+    createWindow()
+  }
 })
