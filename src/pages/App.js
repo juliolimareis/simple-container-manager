@@ -12,8 +12,8 @@ import {
 const App = () => {
   const alertMessage = useAlert();
   const [passwd, setPasswd] = useState('')
-  const [modalPasswdOpen, setModalPasswdOpen] = useState(false);
-  const [permissionDenied, setPermissionDenied] = useState(false)
+  const [modalPasswdOpen, setModalPasswdOpen] = useState(true);
+  const [permissionDenied, setPermissionDenied] = useState(true)
 
   useEffect(() => {
     if (permissionDenied) {

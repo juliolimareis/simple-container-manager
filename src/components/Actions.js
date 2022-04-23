@@ -24,6 +24,7 @@ const Actions = ({
   disableTerminalLogs,
   containerSelectedLogs,
 }) => {
+  const btnSize = { w: 50, h: 50 }
 
   const isContainerSelect = () => {
     if (containerSelectedLogs && container.id === containerSelectedLogs.id) {
@@ -43,6 +44,8 @@ const Actions = ({
     <SimpleGrid columns={[1, 2, 3, 4, 5]} spacing={2}>
 
       <Button
+        minW={btnSize.w}
+        minH={btnSize.h}
         onClick={activeLogs}
         disabled={!container.isRunning}
       >
@@ -55,6 +58,8 @@ const Actions = ({
       </Button>
 
       <Button
+        minW={btnSize.w}
+        minH={btnSize.h}
         title='restart container'
         onClick={() => restartContainer(container)}
         disabled={!container.isRunning}
@@ -63,6 +68,8 @@ const Actions = ({
       </Button>
 
       <Button
+        minW={btnSize.w}
+        minH={btnSize.h}
         title='start container'
         onClick={() => startContainer(container)}
         disabled={container.isRunning}
@@ -71,6 +78,8 @@ const Actions = ({
       </Button>
 
       <Button
+        minW={btnSize.w}
+        minH={btnSize.h}
         title='stop container'
         onClick={() => stopContainer(container)}
         disabled={!container.isRunning}
@@ -79,6 +88,8 @@ const Actions = ({
       </Button>
 
       <Button
+        minW={btnSize.w}
+        minH={btnSize.h}
         title='remove container'
         onClick={() => removeContainer(container)}
         disabled={container.isRunning}
