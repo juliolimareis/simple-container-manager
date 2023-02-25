@@ -9,9 +9,7 @@ import {
   Box,
 } from '@chakra-ui/react'
 
-const App = () => {
-  const alertMessage = useAlert();
-  const [passwd, setPasswd] = useState('')
+const App = (): JSX.Element => {
   const [modalPasswdOpen, setModalPasswdOpen] = useState(true);
   const [permissionDenied, setPermissionDenied] = useState(true)
 
@@ -21,15 +19,7 @@ const App = () => {
     }
   }, [permissionDenied])
 
-  const onSubmit = (value) => {
-    if (value && value !== '') {
-      setPasswd(value)
-      setModalPasswdOpen(false)
-      setPermissionDenied(false)
-    } else {
-      alertMessage('error', 'Password is required')
-    }
-  }
+  const onSubmit = (value: string) => {
 
   return (
     <Box textAlign='center' p={3}>

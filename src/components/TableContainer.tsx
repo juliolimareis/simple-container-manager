@@ -8,7 +8,16 @@ import {
   Thead,
   Tbody,
   Table,
-} from '@chakra-ui/react'
+interface TableContainerProps {
+  containerList: Container[];
+  tailContainer(value: Container): void;
+  stopContainer(value: Container): void;
+  startContainer(value: Container): void;
+  removeContainer(value: Container): void;
+  restartContainer(value: Container): void;
+  disableTerminalLogs(value: Container): void;
+  containerSelectedLogs?: Container;
+}
 
 const TableContainer = ({
   containerList,
@@ -19,7 +28,7 @@ const TableContainer = ({
   restartContainer,
   disableTerminalLogs,
   containerSelectedLogs,
-}) => (
+}: TableContainerProps): JSX.Element => (
   <Table colorScheme='teal'>
 
     <Thead>

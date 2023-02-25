@@ -1,7 +1,11 @@
 import React from "react";
 import { Box, Text, } from "@chakra-ui/react";
 
-const Id = ({ container }) => {
+interface IdProps {
+  container: Container;
+}
+
+const Id = ({ container }: IdProps): JSX.Element => {
   return (
     <Box as='span' textAlign='center' display='flex'>
       <Box

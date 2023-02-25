@@ -11,15 +11,25 @@ import { BiRefresh } from 'react-icons/bi'
 import {
   Box,
   Heading,
-} from '@chakra-ui/react'
+interface ContainerList {
+  passwd: string;
+  permissionDenied: boolean;
+  setPermissionDenied(value: boolean): void;
+}
+
+interface ExecFunction {
+  stop: (container: Container) => void,
+  start: (container: Container) => void,
+  remove: (container: Container) => void,
+  restart: (container: Container) => void,
+  getAllContainers: () => void,
+}
 
 const ContainerList = ({
   passwd,
   permissionDenied,
   setPermissionDenied,
-}) => {
-
-  const alertMessage = useAlert()
+}: ContainerList): JSX.Element => {
 
   const {
     stopContainer,
@@ -31,14 +41,14 @@ const ContainerList = ({
     fetchContainerRunning,
   } = DockerCommand();
 
-  const [tailLogs, setTailLogs] = useState(undefined)
-  const [containerList, setContainerList] = useState([])
-  const [terminalLines, setTerminalLines] = useState([])
-  const [openTerminal, setOpenTerminal] = useState(false)
-  const [lastCommand, setLastCommand] = useState(undefined)
-  const [containerListStop, setContainerListStop] = useState([])
-  const [containerSelected, setContainerSelected] = useState(undefined)
-  const [containerSelectedLogs, setContainerSelectedLogs] = useState(undefined)
+  const [tailLogs, setTailLogs] = useState<ChildProcessWithoutNullStreams>();
+  const [containerList, setContainerList] = useState<Container[]>([]);
+  const [terminalLines, setTerminalLines] = useState<string[]>([]);
+  const [openTerminal, setOpenTerminal] = useState(false);
+  const [lastCommand, setLastCommand] = useState<keyof ExecFunction>();
+  const [containerListStop, setContainerListStop] = useState<Container[]>([]);
+  const [containerSelected, setContainerSelected] = useState<Container>();
+  const [containerSelectedLogs, setContainerSelectedLogs] = useState<Container>();
 
   useEffect(() => {
     if (!permissionDenied) {
@@ -79,14 +89,14 @@ const ContainerList = ({
     }).catch(error => handleError(error, 'getAllContainers'))
   }
 
-  const tailContainer = (container) => {
+  const tailContainer = (container: Container) => {
     setTailLogs(tailLogsContainer(container.id, passwd))
     setOpenTerminal(true)
     setContainerSelected(container)
     setContainerSelectedLogs(container)
   }
 
-  const start = (container) => {
+  const start = (container: Container) => {
     setContainerSelected(container)
     startContainer(container.id, passwd).then(() => {
       getAllContainers()
@@ -97,7 +107,7 @@ const ContainerList = ({
     }).catch(error => handleError(error, 'start'))
   }
 
-  const restart = (container) => {
+  const restart = (container: Container) => {
     setContainerSelected(container)
     startContainer(container.id, passwd).then(() => {
       getAllContainers()
@@ -108,7 +118,7 @@ const ContainerList = ({
     }).catch(error => handleError(error, 'restart'))
   }
 
-  const stop = (container) => {
+  const stop = (container: Container) => {
     setContainerSelected(container)
     stopContainer(container.id, passwd).then(() => {
       getAllContainers()
@@ -122,7 +132,7 @@ const ContainerList = ({
     }).catch(error => handleError(error, 'stop'))
   }
 
-  const remove = (container) => {
+  const remove = (container: Container) => {
     setContainerSelected(container)
     removeContainer(container.id, passwd).then(() => {
       getAllContainers()
@@ -133,7 +143,7 @@ const ContainerList = ({
     }).catch(error => handleError(error))
   }
 
-  const handleError = (error, lastCommandName) => {
+  const handleError = (error: HandleCommand<string>, lastCommandName?: keyof ExecFunction) => {
     if (error.isPermissionDenied) {
       setPermissionDenied(true)
       setLastCommand(lastCommandName)
@@ -143,7 +153,7 @@ const ContainerList = ({
     }
   }
 
-  const isContainerSelectLogs = (container) => {
+  const isContainerSelectLogs = (container: Container) => {
     if (containerSelectedLogs && container.id === containerSelectedLogs.id) {
       return true
     } return false
@@ -157,7 +167,7 @@ const ContainerList = ({
     getAllContainers,
   }
 
-  const disableTerminalLogs = (container) => {
+  const disableTerminalLogs = (container: Container) => {
     if (isContainerSelectLogs(container)) {
       setOpenTerminal(false)
       setTailLogs(undefined)

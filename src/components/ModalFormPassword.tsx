@@ -10,16 +10,21 @@ import {
   Text,
   Input,
   ModalFooter,
-} from '@chakra-ui/react'
+
+interface ModalFormPassword {
+  isOpen: boolean;
+  onSubmit: (value: string) => void;
+  setOpen: (value: boolean) => void;
+}
 
 const ModalFormPassword = ({
   onSubmit,
   modalPasswdOpen,
   setModalPasswdOpen,
-}) => {
-  const refPasswd = useRef(null);
+}: ModalFormPassword): JSX.Element => {
+  const refPasswd = useRef<HTMLInputElement>(null);
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       onSubmit(refPasswd.current.value)
     }

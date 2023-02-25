@@ -1,7 +1,6 @@
 import { useToast } from "@chakra-ui/react"
 
-const useAlert = () => {
-  const toast = useToast()
+function useAlert(): (status?: Status, message?: string) => ToastId | undefined {
 
   const alertMessage = (status?: "info" | "warning" | "success" | "error", message?: string) => (
     toast(

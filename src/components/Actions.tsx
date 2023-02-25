@@ -12,7 +12,16 @@ import {
 import {
   Button,
   SimpleGrid,
-} from '@chakra-ui/react'
+interface ActionsProps {
+  container: Container;
+  containerSelectedLogs?: Container;
+  tailContainer(value: Container): void;
+  stopContainer(value: Container): void;
+  startContainer(value: Container): void;
+  removeContainer(value: Container): void;
+  restartContainer(value: Container): void;
+  disableTerminalLogs(value: Container): void;
+}
 
 const Actions = ({
   container,
@@ -23,7 +32,7 @@ const Actions = ({
   restartContainer,
   disableTerminalLogs,
   containerSelectedLogs,
-}) => {
+}: ActionsProps): JSX.Element => {
   const btnSize = { w: 50, h: 50 }
 
   const isContainerSelect = () => {

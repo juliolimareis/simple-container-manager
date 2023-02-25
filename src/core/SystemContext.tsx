@@ -7,14 +7,14 @@ import React, { useState } from "react";
 
 export const SystemContext = React.createContext({
   passwd: '',
-  setPasswd: (passwd) => {},
+  setPasswd: (passwd: string) => {},
   permissionDenied: false,
-  setPermissionDenied: (perm) => {},
+  setPermissionDenied: (perm: boolean) => {},
   execCommand: '',
-  setExecCommand: (cmd) => {}
+  setExecCommand: (cmd: string) => {}
 })
 
-export const SystemProvider = ({ children }) => {
+export const SystemProvider = (props: { children: React.ReactNode }): JSX.Element => {
   const [passwd, setPasswd] = useState('')
   const [permissionDenied, setPermissionDenied] = useState(false)
   const [execCommand, setExecCommand] = useState('')
@@ -28,7 +28,7 @@ export const SystemProvider = ({ children }) => {
       execCommand,
       setExecCommand
     }}>
-      {children}
+      {props.children}
     </SystemContext.Provider>
   )
 }

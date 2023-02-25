@@ -3,6 +3,9 @@ import { docker } from "./commands";
 const { exec, spawn } = window.require("child_process");
 
 const DockerCommand = () => {
+  const fetchContainerRunning = async (userPassword: string) => (
+    new Promise<HandleCommand>((resolve, reject) => {
+      const docker = userPassword ? dockerSudo : dockerWithoutSudo;
 
   const fetchContainerRunning = async (userPassword) => (
     new Promise((resolve, reject) => {
@@ -19,8 +22,8 @@ const DockerCommand = () => {
     })
   )
 
-  const fetchContainerStop = async (userPassword) => (
-    new Promise((resolve, reject) => {
+  const fetchContainerStop = async (userPassword: string) => (
+    new Promise<HandleCommand>((resolve, reject) => {
       exec(
         cmd(docker.listContainersStop, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -34,8 +37,8 @@ const DockerCommand = () => {
     })
   )
 
-  const startContainer = (id, userPassword) => (
-    new Promise((resolve, reject) => {
+  const startContainer = (id: string, userPassword: string) => (
+    new Promise<void>((resolve, reject) => {
       exec(
         cmdWithId(docker.startContainer, id, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -48,8 +51,8 @@ const DockerCommand = () => {
     })
   )
 
-  const restartContainer = (id, userPassword) => (
-    new Promise((resolve, reject) => {
+  const restartContainer = (id: string, userPassword: string) => (
+    new Promise<void>((resolve, reject) => {
       exec(
         cmdWithId(docker.restartContainer, id, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -62,8 +65,8 @@ const DockerCommand = () => {
     })
   )
 
-  const stopContainer = (id, userPassword) => (
-    new Promise((resolve, reject) => {
+  const stopContainer = (id: string, userPassword: string) => (
+    new Promise<void>((resolve, reject) => {
       exec(
         cmdWithId(docker.stopContainer, id, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -76,8 +79,8 @@ const DockerCommand = () => {
     })
   )
 
-  const removeContainer = (id, userPassword) => (
-    new Promise((resolve, reject) => {
+  const removeContainer = (id: string, userPassword: string) => (
+    new Promise<void>((resolve, reject) => {
       exec(
         cmdWithId(docker.removeContainer, id, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -91,12 +94,10 @@ const DockerCommand = () => {
   )
 
   //return object stdout with event.on
-  const tailLogsContainer = (id, userPassword) => (
-    spawn(cmdWithId(docker.tailLogs, id, userPassword), [], { shell: true })
-  )
+  const tailLogsContainer = (id: string, userPassword: string) => {
 
-  const logsContainer = (id, userPassword) => (
-    new Promise((resolve, reject) => {
+  const logsContainer = (id: string, userPassword: string) => (
+    new Promise<string[]>((resolve, reject) => {
       exec(
         cmdWithId(docker.logs, id, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -109,8 +110,7 @@ const DockerCommand = () => {
     })
   )
 
-  const isPermissionDenied = (error) => {
-    // console.log(error)
+  const isPermissionDenied = (error: string) => {
     if (
       error.includes('permission denied')
       || error.includes('senha')
@@ -121,14 +121,14 @@ const DockerCommand = () => {
     } return false
   }
 
-  const handleCommand = (stdout) => (
+  const handleCommand = (containers: Container[]): HandleCommand => (
     {
       message: stdout,
       isPermissionDenied: false
     }
   )
 
-  const handleErros = (error) => (
+  const handleErros = (error: string): HandleCommand<string> => (
     {
       message: removePasswdInsertInErrorMessage(`${error}`),
       isPermissionDenied: isPermissionDenied(`${error}`),
@@ -139,11 +139,9 @@ const DockerCommand = () => {
     return error.split('|')[1].split('-S')[1]
   }
 
-  const cmd = (cmdLine, userPassword) => {
-    return cmdLine.replace('{password}', userPassword)
-  }
+  const cmd = (cmdLine: string, userPassword: string) => {
 
-  const cmdWithId = (cmdLine, id, userPassword) => {
+  const cmdWithId = (cmdLine: string, id: string, userPassword: string) => {
     return cmdLine.replace('{password}', userPassword).replace('{id}', id)
   }
 
@@ -157,8 +155,7 @@ const DockerCommand = () => {
     logsContainer,
     tailLogsContainer,
     isPermissionDenied,
-  }
-}
+const parseCmdLsToArray = (cmdLs: string): Container[] => {
 
 const parseCmdLsToArray = (cmdLs) => {
   const lines = cmdLs.split('\n')
