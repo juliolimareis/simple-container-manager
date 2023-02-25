@@ -1,5 +1,5 @@
 import { AiOutlineFileText } from 'react-icons/ai'
-
+import CmdIcon from "./icons/CmdIcon";
 import { BiRefresh } from 'react-icons/bi'
 
 import {
@@ -7,7 +7,8 @@ import {
   BsStopFill,
   BsFillPlayFill,
   BsFillTrashFill,
-} from 'react-icons/bs'
+  BsFillEyeSlashFill,
+} from "react-icons/bs";
 
 import {
   Button,
@@ -60,9 +61,11 @@ const Actions = ({
       >
         {
           isContainerSelect() ?
-            <BsEyeFill color='#04aa6d' title='close logs' />
+            <BsFillEyeSlashFill color='#04aa6d' title='close logs' />
             :
-            <AiOutlineFileText color='#04aacd' title='show logs' />
+            <div title='show logs'>
+              <CmdIcon fill='#ffffff' />
+            </div>
         }
       </Button>
 
