@@ -1,25 +1,28 @@
-import { useState, useEffect, } from 'react';
+import React, { useState, useEffect, } from "react";
 
-import useAlert from '../core/hooks/useAlert.ts';
-
-import ContainerList from '../components/ContainerList';
-import ModalFormPassword from '../components/ModalFormPassword'
+import ContainerList from "../components/ContainerList";
+import ModalFormPassword from "../components/ModalFormPassword";
 
 import {
   Box,
-} from '@chakra-ui/react'
+} from "@chakra-ui/react";
 
 const App = (): JSX.Element => {
+  const [passwd, setPasswd] = useState("");
   const [modalPasswdOpen, setModalPasswdOpen] = useState(true);
-  const [permissionDenied, setPermissionDenied] = useState(true)
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
   useEffect(() => {
     if (permissionDenied) {
-      setModalPasswdOpen(true)
+      setModalPasswdOpen(true);
     }
-  }, [permissionDenied])
+  }, [permissionDenied]);
 
   const onSubmit = (value: string) => {
+    setPasswd(value);
+    setModalPasswdOpen(false);
+    setPermissionDenied(false);
+  };
 
   return (
     <Box textAlign='center' p={3}>
@@ -38,6 +41,6 @@ const App = (): JSX.Element => {
 
     </Box>
   );
-}
+};
 
 export default App;

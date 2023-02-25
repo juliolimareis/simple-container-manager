@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import React, { useRef, } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -10,6 +10,7 @@ import {
   Text,
   Input,
   ModalFooter,
+} from "@chakra-ui/react";
 
 interface ModalFormPassword {
   isOpen: boolean;
@@ -20,7 +21,7 @@ interface ModalFormPassword {
 const ModalFormPassword = ({
   onSubmit,
   isOpen,
-  setModalPasswdOpen,
+  setOpen,
 }: ModalFormPassword): JSX.Element => {
   const refPasswd = useRef<HTMLInputElement>(null);
 
@@ -28,7 +29,7 @@ const ModalFormPassword = ({
     if (e?.key === "Enter") {
       onSubmit(refPasswd.current?.value ?? "");
     }
-  }
+  };
 
   return (
     <Modal
@@ -71,7 +72,7 @@ const ModalFormPassword = ({
 
       </ModalContent>
     </Modal>
-  )
-}
+  );
+};
 
-export default ModalFormPassword
+export default ModalFormPassword;

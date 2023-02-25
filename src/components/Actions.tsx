@@ -1,9 +1,8 @@
-import { AiOutlineFileText } from 'react-icons/ai'
+import React from "react";
 import CmdIcon from "./icons/CmdIcon";
-import { BiRefresh } from 'react-icons/bi'
+import { BiRefresh, } from "react-icons/bi";
 
 import {
-  BsEyeFill,
   BsStopFill,
   BsFillPlayFill,
   BsFillTrashFill,
@@ -13,6 +12,8 @@ import {
 import {
   Button,
   SimpleGrid,
+} from "@chakra-ui/react";
+
 interface ActionsProps {
   container: Container;
   containerSelectedLogs?: Container;
@@ -34,21 +35,17 @@ const Actions = ({
   disableTerminalLogs,
   containerSelectedLogs,
 }: ActionsProps): JSX.Element => {
-  const btnSize = { w: 50, h: 50 }
+  const btnSize = { w: 50, h: 50 };
 
-  const isContainerSelect = () => {
-    if (containerSelectedLogs && container.id === containerSelectedLogs.id) {
-      return true
-    } return false
-  }
+  const isContainerSelect = () => containerSelectedLogs && container.id === containerSelectedLogs.id;
 
   const activeLogs = () => {
     if (isContainerSelect()) {
-      disableTerminalLogs(container)
+      disableTerminalLogs(container);
     } else {
-      tailContainer(container)
+      tailContainer(container);
     }
-  }
+  };
 
   return (
     <SimpleGrid columns={[1, 2, 3, 4, 5]} spacing={2}>
@@ -76,7 +73,7 @@ const Actions = ({
         onClick={() => restartContainer(container)}
         disabled={!container.isRunning}
       >
-        <BiRefresh color='green' />
+        <BiRefresh color='green'/>
       </Button>
 
       <Button
@@ -110,7 +107,7 @@ const Actions = ({
       </Button>
 
     </SimpleGrid>
-  )
-}
+  );
+};
 
-export default Actions
+export default Actions;

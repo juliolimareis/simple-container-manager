@@ -1,5 +1,6 @@
-import Id from './Id'
-import Actions from './Actions'
+import React from "react";
+import Id from "./Id";
+import Actions from "./Actions";
 
 import {
   Tr,
@@ -8,6 +9,8 @@ import {
   Thead,
   Tbody,
   Table,
+} from "@chakra-ui/react";
+
 interface TableContainerProps {
   containerList: Container[];
   tailContainer(value: Container): void;
@@ -68,6 +71,6 @@ const TableContainer = ({
       }
     </Tbody>
   </Table>
-)
+);
 
-export default TableContainer
+export default TableContainer;

@@ -2,155 +2,172 @@ import { dockerWithoutSudo, dockerSudo, } from "./commands";
 
 const { exec, spawn } = window.require("child_process") as ChildProcessProps;
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const DockerCommand = () => {
   const fetchContainerRunning = async (userPassword: string) => (
     new Promise<HandleCommand>((resolve, reject) => {
       const docker = userPassword ? dockerSudo : dockerWithoutSudo;
 
-  const fetchContainerRunning = async (userPassword) => (
-    new Promise((resolve, reject) => {
       exec(
-        cmd(docker.listContainersRunning, userPassword), (error, stdout, stderr) => {
+        cmd(docker.listContainersRunning, userPassword), (error, stdout) => {
           if (error) {
             // console.error('stderr:', stderr);
             reject(handleErros(error));
           } else {
-            resolve(handleCommand(parseCmdLsToArray(stdout)))
+            resolve(handleCommand(parseCmdLsToArray(stdout)));
           }
         }
       );
     })
-  )
+  );
 
   const fetchContainerStop = async (userPassword: string) => (
     new Promise<HandleCommand>((resolve, reject) => {
       const docker = userPassword ? dockerSudo : dockerWithoutSudo;
+
       exec(
-        cmd(docker.listContainersStop, userPassword), (error, stdout, stderr) => {
+        cmd(docker.listContainersStop, userPassword), (error, stdout ) => {
           if (error) {
             // console.error('stderr:', stderr);
             reject(handleErros(error));
           } else {
-            resolve(handleCommand(parseCmdLsToArray(stdout)))
+            resolve(handleCommand(parseCmdLsToArray(stdout)));
           }
         }
       );
     })
-  )
+  );
 
   const startContainer = (id: string, userPassword: string) => (
     new Promise<void>((resolve, reject) => {
       const docker = userPassword ? dockerSudo : dockerWithoutSudo;
+
       exec(
-        cmdWithId(docker.startContainer, id, userPassword), (error, stdout, stderr) => {
+        cmdWithId(docker.startContainer, id, userPassword), (error ) => {
           if (error) {
-            reject(handleErros(error))
+            reject(handleErros(error));
           } else {
-            resolve()
+            resolve();
           }
         }
       );
     })
-  )
+  );
 
   const restartContainer = (id: string, userPassword: string) => (
     new Promise<void>((resolve, reject) => {
       const docker = userPassword ? dockerSudo : dockerWithoutSudo;
+
       exec(
-        cmdWithId(docker.restartContainer, id, userPassword), (error, stdout, stderr) => {
+        cmdWithId(docker.restartContainer, id, userPassword), (error) => {
           if (error) {
-            reject(handleErros(error))
+            reject(handleErros(error));
           } else {
-            resolve()
+            resolve();
           }
         }
       );
     })
-  )
+  );
 
   const stopContainer = (id: string, userPassword: string) => (
     new Promise<void>((resolve, reject) => {
       const docker = userPassword ? dockerSudo : dockerWithoutSudo;
+
       exec(
-        cmdWithId(docker.stopContainer, id, userPassword), (error, stdout, stderr) => {
+        cmdWithId(docker.stopContainer, id, userPassword), (error) => {
           if (error) {
-            reject(handleErros(error))
+            reject(handleErros(error));
           } else {
-            resolve()
+            resolve();
           }
         }
       );
     })
-  )
+  );
 
   const removeContainer = (id: string, userPassword: string) => (
     new Promise<void>((resolve, reject) => {
       const docker = userPassword ? dockerSudo : dockerWithoutSudo;
+
       exec(
-        cmdWithId(docker.removeContainer, id, userPassword), (error, stdout, stderr) => {
+        cmdWithId(docker.removeContainer, id, userPassword), (error) => {
           if (error) {
-            reject(handleErros(error))
+            reject(handleErros(error));
           } else {
-            resolve()
+            resolve();
           }
         }
       );
     })
-  )
+  );
 
   //return object stdout with event.on
   const tailLogsContainer = (id: string, userPassword: string) => {
     const docker = userPassword ? dockerSudo : dockerWithoutSudo;
 
+    return spawn(cmdWithId(docker.tailLogs, id, userPassword), { shell: true });
+  };
+
   const logsContainer = (id: string, userPassword: string) => (
     new Promise<string[]>((resolve, reject) => {
       const docker = userPassword ? dockerSudo : dockerWithoutSudo;
+
       exec(
-        cmdWithId(docker.logs, id, userPassword), (error, stdout, stderr) => {
+        cmdWithId(docker.logs, id, userPassword), (error, stdout) => {
           if (error) {
-            reject(handleErros(error))
+            reject(handleErros(error));
           } else {
-            resolve(stdout.split('\n').reverse())
+            resolve(stdout.split("\n").reverse());
           }
         }
       );
     })
-  )
+  );
 
   const isPermissionDenied = (error: string) => {
     if (
-      error.includes('permission denied')
-      || error.includes('senha')
-      || error.includes('password')
+      error.includes("permission denied")
+      || error.includes("senha")
+      || error.includes("password")
     ) {
-      console.log('isPermissionDenied');
-      return true
-    } return false
-  }
+      console.log("isPermissionDenied");
+
+      return true;
+    }
+
+    return false;
+  };
 
   const handleCommand = (containers: Container[]): HandleCommand => (
     {
-      message: stdout,
+      message: containers,
       isPermissionDenied: false
     }
-  )
+  );
 
   const handleErros = (error: string): HandleCommand<string> => (
     {
       message: removePasswdInsertInErrorMessage(`${error}`),
       isPermissionDenied: isPermissionDenied(`${error}`),
     }
-  )
+  );
 
-  const removePasswdInsertInErrorMessage = (error) => {
-    return error.split('|')[1].split('-S')[1]
-  }
+  const removePasswdInsertInErrorMessage = (error: string) => {
+    if(error.includes("sudo")){
+      return error.split("|")[1].split("-S")[1];
+    }
+
+    return error;
+  };
 
   const cmd = (cmdLine: string, userPassword: string) => {
+    return cmdLine.replace("{password}", userPassword);
+  };
 
   const cmdWithId = (cmdLine: string, id: string, userPassword: string) => {
-    return cmdLine.replace('{password}', userPassword).replace('{id}', id)
-  }
+    return cmdLine.replace("{password}", userPassword).replace("{id}", id);
+  };
 
   return {
     restartContainer,
@@ -162,15 +179,18 @@ const DockerCommand = () => {
     logsContainer,
     tailLogsContainer,
     isPermissionDenied,
-const parseCmdLsToArray = (cmdLs: string): Container[] => {
+  };
+};
 
-const parseCmdLsToArray = (cmdLs) => {
-  const lines = cmdLs.split('\n')
+const parseCmdLsToArray = (cmdLs: string): Container[] => {
+  const lines = cmdLs.split("\n");
+
   if (Array.isArray(lines)) {
     //remove last line(empty)
-    lines.pop()
+    lines.pop();
+
     return lines.map((line) => {
-      const lineElements = line.split('   ')
+      const lineElements = line.split("   ");
 
       const [
         id,
@@ -180,7 +200,8 @@ const parseCmdLsToArray = (cmdLs) => {
         status,
         ports,
         name
-      ] = lineElements
+      ] = lineElements;
+
       return {
         id,
         image,
@@ -189,11 +210,12 @@ const parseCmdLsToArray = (cmdLs) => {
         status,
         ports,
         name,
-        isRunning: !`${status}`.includes('Exited')
-      }
-    })
+        isRunning: !`${status}`.includes("Exited")
+      };
+    });
   }
-  return []
-}
 
-export default DockerCommand
+  return [];
+};
+
+export default DockerCommand;

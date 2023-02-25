@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-function */
 
 // interface SystemContextProps {
 // 	passwd: string;
@@ -6,29 +8,29 @@ import React, { useState } from "react";
 // }
 
 export const SystemContext = React.createContext({
-  passwd: '',
+  passwd: "",
   setPasswd: (passwd: string) => {},
   permissionDenied: false,
   setPermissionDenied: (perm: boolean) => {},
-  execCommand: '',
+  execCommand: "",
   setExecCommand: (cmd: string) => {}
-})
+});
 
 export const SystemProvider = (props: { children: React.ReactNode }): JSX.Element => {
-  const [passwd, setPasswd] = useState('')
-  const [permissionDenied, setPermissionDenied] = useState(false)
-  const [execCommand, setExecCommand] = useState('')
+  const [passwd, setPasswd] = useState("");
+  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [execCommand, setExecCommand] = useState("");
 
   return (
     <SystemContext.Provider value={{
       passwd,
-			setPasswd,
+      setPasswd,
       permissionDenied,
-			setPermissionDenied,
+      setPermissionDenied,
       execCommand,
       setExecCommand
     }}>
       {props.children}
     </SystemContext.Provider>
-  )
-}
+  );
+};

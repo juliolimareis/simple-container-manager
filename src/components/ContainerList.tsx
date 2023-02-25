@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, } from "react";
 
-import Terminal from '../components/Terminal'
-import TableContainer from '../components/TableContainer'
+import Terminal from "../components/Terminal";
+import TableContainer from "../components/TableContainer";
 
-import useAlert from '../core/hooks/useAlert.ts'
-import DockerCommand from '../core/dockerCommand'
+import useAlert from "../core/hooks/useAlert";
+import DockerCommand from "../core/dockerCommand";
 
-import { BiRefresh } from 'react-icons/bi'
+import { BiRefresh, } from "react-icons/bi";
+
+import { ChildProcessWithoutNullStreams, } from "child_process";
 
 import {
   Box,
   Heading,
+} from "@chakra-ui/react";
+
 interface ContainerList {
   passwd: string;
   permissionDenied: boolean;
@@ -30,6 +34,7 @@ const ContainerList = ({
   permissionDenied,
   setPermissionDenied,
 }: ContainerList): JSX.Element => {
+  const alertMessage = useAlert();
 
   const {
     stopContainer,
@@ -53,111 +58,118 @@ const ContainerList = ({
   useEffect(() => {
     if (!permissionDenied) {
       if (lastCommand && containerSelected) {
-        execFunction[lastCommand](containerSelected)
-        setLastCommand(undefined)
+        execFunction[lastCommand](containerSelected);
+        setLastCommand(undefined);
       } else {
-        getAllContainers()
+        getAllContainers();
       }
     }
-  }, [passwd, permissionDenied])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passwd, permissionDenied]);
 
   useEffect(() => {
     if (openTerminal && tailLogs) {
-      tailLogs.stdout.setEncoding('utf8');
-      tailLogs.stdout.on('data', data => {
-        setTerminalLines(`${data}`.split('\n').reverse())
-      })
-      tailLogs.on('error', error => {
+      tailLogs.stdout.setEncoding("utf8");
+
+      tailLogs.stdout.on("data", data => {
+        setTerminalLines(`${data}`.split("\n").reverse());
+      });
+
+      tailLogs.on("error", error => {
         if (isPermissionDenied(`${error}`)) {
-          setPermissionDenied(true)
+          setPermissionDenied(true);
         }
-        console.log(error)
-      })
+
+        console.log(error);
+      });
     }
-  }, [tailLogs])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tailLogs]);
 
   const getAllContainers = () => {
-    setContainerList([])
-    setContainerListStop([])
+    setContainerList([]);
+    setContainerListStop([]);
 
     fetchContainerRunning(passwd).then(response => {
-      setContainerList(response.message)
-    }).catch(error => handleError(error, 'getAllContainers'))
+      setContainerList(response.message);
+    }).catch(error => handleError(error, "getAllContainers"));
 
     fetchContainerStop(passwd).then(response => {
-      setContainerListStop(response.message)
-    }).catch(error => handleError(error, 'getAllContainers'))
-  }
+      setContainerListStop(response.message);
+    }).catch(error => handleError(error, "getAllContainers"));
+  };
 
   const tailContainer = (container: Container) => {
-    setTailLogs(tailLogsContainer(container.id, passwd))
-    setOpenTerminal(true)
-    setContainerSelected(container)
-    setContainerSelectedLogs(container)
-  }
+    setTailLogs(tailLogsContainer(container.id, passwd));
+    setOpenTerminal(true);
+    setContainerSelected(container);
+    setContainerSelectedLogs(container);
+  };
 
   const start = (container: Container) => {
-    setContainerSelected(container)
+    setContainerSelected(container);
     startContainer(container.id, passwd).then(() => {
-      getAllContainers()
+      getAllContainers();
       alertMessage(
         "success",
         "Container ".concat(container.name, " is running.")
-      )
-    }).catch(error => handleError(error, 'start'))
-  }
+      );
+    }).catch(error => handleError(error, "start"));
+  };
 
   const restart = (container: Container) => {
-    setContainerSelected(container)
+    setContainerSelected(container);
     startContainer(container.id, passwd).then(() => {
-      getAllContainers()
+      getAllContainers();
       alertMessage(
         "success",
         String(container.name).concat(" has been restarted.")
-      )
-    }).catch(error => handleError(error, 'restart'))
-  }
+      );
+    }).catch(error => handleError(error, "restart"));
+  };
 
   const stop = (container: Container) => {
-    setContainerSelected(container)
+    setContainerSelected(container);
     stopContainer(container.id, passwd).then(() => {
-      getAllContainers()
+      getAllContainers();
       alertMessage(
         "success",
         "Container ".concat(container.name, " is stopped.")
-      )
+      );
       if (isContainerSelectLogs(container)) {
-        disableTerminalLogs(container)
+        disableTerminalLogs(container);
       }
-    }).catch(error => handleError(error, 'stop'))
-  }
+    }).catch(error => handleError(error, "stop"));
+  };
 
   const remove = (container: Container) => {
-    setContainerSelected(container)
+    setContainerSelected(container);
     removeContainer(container.id, passwd).then(() => {
-      getAllContainers()
+      getAllContainers();
       alertMessage(
         "success",
         "Container ".concat(container.name, " has been removed.")
-      )
-    }).catch(error => handleError(error))
-  }
+      );
+    }).catch(error => handleError(error));
+  };
 
   const handleError = (error: HandleCommand<string>, lastCommandName?: keyof ExecFunction) => {
     if (error.isPermissionDenied) {
-      setPermissionDenied(true)
-      setLastCommand(lastCommandName)
+      setPermissionDenied(true);
+      setLastCommand(lastCommandName);
     } else {
-      alertMessage('error', error.message)
-      console.log(error)
+      alertMessage("error", error.message);
+      console.log(error);
     }
-  }
+  };
 
   const isContainerSelectLogs = (container: Container) => {
     if (containerSelectedLogs && container.id === containerSelectedLogs.id) {
-      return true
-    } return false
-  }
+      return true;
+    }
+
+    return false;
+  };
 
   const execFunction = {
     stop,
@@ -165,15 +177,15 @@ const ContainerList = ({
     remove,
     restart,
     getAllContainers,
-  }
+  };
 
   const disableTerminalLogs = (container: Container) => {
     if (isContainerSelectLogs(container)) {
-      setOpenTerminal(false)
-      setTailLogs(undefined)
-      setContainerSelectedLogs(undefined)
+      setOpenTerminal(false);
+      setTailLogs(undefined);
+      setContainerSelectedLogs(undefined);
     }
-  }
+  };
 
   return (
     <Box>
@@ -219,7 +231,7 @@ const ContainerList = ({
       />
 
     </Box>
-  )
-}
+  );
+};
 
-export default ContainerList
+export default ContainerList;
