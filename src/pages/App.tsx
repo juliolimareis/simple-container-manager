@@ -32,8 +32,8 @@ const App = (): JSX.Element => {
 
       <ModalFormPassword
         onSubmit={onSubmit}
-        modalPasswdOpen={modalPasswdOpen}
-        setModalPasswdOpen={setModalPasswdOpen}
+        isOpen={modalPasswdOpen}
+        setOpen={setModalPasswdOpen}
       />
 
     </Box>

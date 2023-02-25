@@ -19,7 +19,7 @@ interface ModalFormPassword {
 
 const ModalFormPassword = ({
   onSubmit,
-  modalPasswdOpen,
+  isOpen,
   setModalPasswdOpen,
 }: ModalFormPassword): JSX.Element => {
   const refPasswd = useRef<HTMLInputElement>(null);
@@ -32,10 +32,10 @@ const ModalFormPassword = ({
 
   return (
     <Modal
-      isOpen={modalPasswdOpen}
-      closeOnEsc={false}
+      isOpen={isOpen}
+      closeOnEsc={true}
       closeOnOverlayClick={false}
-      onClose={() => setModalPasswdOpen(false)}
+      onClose={() => setOpen(false)}
     >
       <ModalOverlay />
 
