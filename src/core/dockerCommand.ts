@@ -1,6 +1,6 @@
 import { dockerWithoutSudo, dockerSudo, } from "./commands";
 
-const { exec, spawn } = window.require("child_process");
+const { exec, spawn } = window.require("child_process") as ChildProcessProps;
 
 const DockerCommand = () => {
   const fetchContainerRunning = async (userPassword: string) => (
