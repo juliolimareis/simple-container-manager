@@ -42,7 +42,7 @@
     "electron:serve": "concurrently -k \"cross-env BROWSER=none npm start\" \"npm run electron:dev\"",
     "electron:build": "npm run build && electron-builder --linux",
     "electron:start": "wait-on tcp:3111 && electron .",
-    "electron:dev": "wait-on tcp:192.168.1.99:3111 && electron ."
+    "electron:dev": "wait-on tcp:localhost:3111 && electron ."
   },
   "build": {
     "appId": "com.electron.simple-container-manager",
