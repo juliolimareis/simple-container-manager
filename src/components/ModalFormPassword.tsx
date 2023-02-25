@@ -25,8 +25,8 @@ const ModalFormPassword = ({
   const refPasswd = useRef<HTMLInputElement>(null);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      onSubmit(refPasswd.current.value)
+    if (e?.key === "Enter") {
+      onSubmit(refPasswd.current?.value ?? "");
     }
   }
 
@@ -54,7 +54,7 @@ const ModalFormPassword = ({
               autoFocus
               type='password'
               placeholder='sudo password'
-              onKeyDown={handleKeyDown}
+              onKeyDown={(e) => handleKeyDown(e)}
             />
 
           </FormControl>
@@ -63,7 +63,7 @@ const ModalFormPassword = ({
 
         <ModalFooter>
           <Button
-            onClick={() => onSubmit(refPasswd.current.value)}
+            onClick={() => onSubmit(refPasswd.current?.value ?? "")}
           >
             Confirm
           </Button>
