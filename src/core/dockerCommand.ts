@@ -1,4 +1,4 @@
-import { docker } from "./commands";
+import { dockerWithoutSudo, dockerSudo, } from "./commands";
 
 const { exec, spawn } = window.require("child_process");
 
@@ -24,6 +24,7 @@ const DockerCommand = () => {
 
   const fetchContainerStop = async (userPassword: string) => (
     new Promise<HandleCommand>((resolve, reject) => {
+      const docker = userPassword ? dockerSudo : dockerWithoutSudo;
       exec(
         cmd(docker.listContainersStop, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -39,6 +40,7 @@ const DockerCommand = () => {
 
   const startContainer = (id: string, userPassword: string) => (
     new Promise<void>((resolve, reject) => {
+      const docker = userPassword ? dockerSudo : dockerWithoutSudo;
       exec(
         cmdWithId(docker.startContainer, id, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -53,6 +55,7 @@ const DockerCommand = () => {
 
   const restartContainer = (id: string, userPassword: string) => (
     new Promise<void>((resolve, reject) => {
+      const docker = userPassword ? dockerSudo : dockerWithoutSudo;
       exec(
         cmdWithId(docker.restartContainer, id, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -67,6 +70,7 @@ const DockerCommand = () => {
 
   const stopContainer = (id: string, userPassword: string) => (
     new Promise<void>((resolve, reject) => {
+      const docker = userPassword ? dockerSudo : dockerWithoutSudo;
       exec(
         cmdWithId(docker.stopContainer, id, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -81,6 +85,7 @@ const DockerCommand = () => {
 
   const removeContainer = (id: string, userPassword: string) => (
     new Promise<void>((resolve, reject) => {
+      const docker = userPassword ? dockerSudo : dockerWithoutSudo;
       exec(
         cmdWithId(docker.removeContainer, id, userPassword), (error, stdout, stderr) => {
           if (error) {
@@ -95,9 +100,11 @@ const DockerCommand = () => {
 
   //return object stdout with event.on
   const tailLogsContainer = (id: string, userPassword: string) => {
+    const docker = userPassword ? dockerSudo : dockerWithoutSudo;
 
   const logsContainer = (id: string, userPassword: string) => (
     new Promise<string[]>((resolve, reject) => {
+      const docker = userPassword ? dockerSudo : dockerWithoutSudo;
       exec(
         cmdWithId(docker.logs, id, userPassword), (error, stdout, stderr) => {
           if (error) {
