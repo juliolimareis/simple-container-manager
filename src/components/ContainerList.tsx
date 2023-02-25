@@ -52,7 +52,7 @@ const ContainerList = ({
 
   useEffect(() => {
     if (!permissionDenied) {
-      if (lastCommand) {
+      if (lastCommand && containerSelected) {
         execFunction[lastCommand](containerSelected)
         setLastCommand(undefined)
       } else {
@@ -178,7 +178,7 @@ const ContainerList = ({
   return (
     <Box>
       {
-        openTerminal && (
+        openTerminal && containerSelectedLogs && (
           <Terminal container={containerSelectedLogs} terminalLines={terminalLines} />
         )
       }
