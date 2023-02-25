@@ -1,4 +1,5 @@
-import { Box, Text } from '@chakra-ui/react'
+import React from "react";
+import { Box, Text, } from "@chakra-ui/react";
 
 const Id = ({ container }) => {
   return (
@@ -10,13 +11,13 @@ const Id = ({ container }) => {
         mt={1}
         borderRadius='100%'
         backgroundColor={
-          container.isRunning ? '#04aa6d' : 'red'
+          container.isRunning ? "#04aa6d" : "red"
         }
-        title={container.isRunning ? 'Running' : 'Stopped'}
+        title={container.isRunning ? "Running" : "Stopped"}
       />
       <Text>{container.id}</Text>
     </Box>
-  )
-}
+  );
+};
 
-export default Id
+export default Id;
