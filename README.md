@@ -1,11 +1,13 @@
 # Simple Container Manager
 
-![node](https://img.shields.io/badge/Node-17.9.0-7cb602)
-![electron](https://img.shields.io/badge/Electron-18.0.3-9ae3f1)
-![react](https://img.shields.io/badge/React-17.0.2-61dafb)
-![typescript](https://img.shields.io/badge/Typescript-4.6.3-2f74c0)
+[![node](https://img.shields.io/badge/Node-18.14.2-7cb602)](https://nodejs.org/en/)
+[![pnpm](https://img.shields.io/badge/pnpm-17.19.0-yellow)](https://nodejs.org/en/)
+[![npm](https://img.shields.io/badge/npm-9.5.0-red)](https://nodejs.org/en/)
+[![electron](https://img.shields.io/badge/Electron-23.1.1-9ae3f1)](https://www.electronjs.org/)
+[![react](https://img.shields.io/badge/React-18.2.0-61dafb)](https://en.reactjs.org/)
+[![typescript](https://img.shields.io/badge/Typescript-4.9.5-2f74c0)](https://www.typescriptlang.org/)
 
-[![node](https://img.shields.io/badge/DOWNLOADS-v1.0.2-7cb602)](https://drive.google.com/drive/folders/1Kyzjgx6wogOnR6xn7E6qmuPNJTRFgxay?usp=sharing)
+[![node](https://img.shields.io/badge/DOWNLOADS-List-7cb602)](https://drive.google.com/drive/folders/1Kyzjgx6wogOnR6xn7E6qmuPNJTRFgxay?usp=sharing)
 
 Simple interface to manage docker containers on Linux.
 
@@ -14,16 +16,29 @@ Simple interface to manage docker containers on Linux.
 List your containers!
 ![Containers List](https://github.com/juliolimareis/simple-container-manager/blob/master/public/images/image_2.png?raw=true)
 
-[![node](https://img.shields.io/badge/DOWNLOADS-v1.0.2-7cb602)](https://drive.google.com/drive/folders/1Kyzjgx6wogOnR6xn7E6qmuPNJTRFgxay?usp=sharing)
+[![node](https://img.shields.io/badge/DOWNLOADs-List-7cb602)](https://drive.google.com/drive/folders/1Kyzjgx6wogOnR6xn7E6qmuPNJTRFgxay?usp=sharing)
 
 
-### Run Dev Project
-`npm run electron:serve`
+### 💻 Run Dev Project
+pnpm
+``` sh
+pnpm i && pnpm electron:serve
+```
+npm
+``` sh
+npm i && npm run electron:serve
+```
 
-### Build Project
+### 🚧 Build Project
+pnpm
+``` sh
+pnpm i && pnpm electron:build
+```
+npm
+``` sh
+npm i && npm run electron:build
+```
 After build see in packages in ./dist
-
-`npm run electron:build`
 
 ❌ Build Errors
 
