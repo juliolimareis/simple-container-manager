@@ -9,7 +9,25 @@
 
 [![node](https://img.shields.io/badge/DOWNLOADS-List-7cb602)](https://drive.google.com/drive/folders/1Kyzjgx6wogOnR6xn7E6qmuPNJTRFgxay?usp=sharing)
 
-Simple interface to manage docker containers on Linux.
+
+<p>
+  Simple interface to manage docker containers on Linux.
+</p>
+<img 
+  style=" 
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width:250px
+  " 
+  src="icon.png"/>
+
+<div style="text-align: center">
+  <h1 style="text-align: center">Simple Manager Container</h1>
+  <p style="font-size: 12px">
+    Icon by Birply Inked Duotone
+  </p>
+</div>
 
 ![Initial Screen](https://github.com/juliolimareis/simple-container-manager/blob/master/public/images/image_1.png?raw=true)
 
