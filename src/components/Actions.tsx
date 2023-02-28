@@ -54,7 +54,7 @@ const Actions = ({
         minW={btnSize.w}
         minH={btnSize.h}
         onClick={activeLogs}
-        disabled={!container.isRunning}
+        isDisabled={!container.isRunning}
       >
         {
           isContainerSelect() ?
@@ -71,7 +71,7 @@ const Actions = ({
         minH={btnSize.h}
         title='restart container'
         onClick={() => restartContainer(container)}
-        disabled={!container.isRunning}
+        isDisabled={!container.isRunning}
       >
         <BiRefresh color='green'/>
       </Button>
@@ -81,7 +81,7 @@ const Actions = ({
         minH={btnSize.h}
         title='start container'
         onClick={() => startContainer(container)}
-        disabled={container.isRunning}
+        isDisabled={container.isRunning}
       >
         <BsFillPlayFill color='green' />
       </Button>
@@ -91,7 +91,7 @@ const Actions = ({
         minH={btnSize.h}
         title='stop container'
         onClick={() => stopContainer(container)}
-        disabled={!container.isRunning}
+        isDisabled={!container.isRunning}
       >
         <BsStopFill color='orange' />
       </Button>
@@ -101,7 +101,7 @@ const Actions = ({
         minH={btnSize.h}
         title='remove container'
         onClick={() => removeContainer(container)}
-        disabled={container.isRunning}
+        isDisabled={container.isRunning}
       >
         <BsFillTrashFill color='red' />
       </Button>
