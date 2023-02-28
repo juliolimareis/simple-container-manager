@@ -1,12 +1,12 @@
 const {
   app,
   BrowserWindow
-} = require('electron')
+} = require("electron");
 
-const path = require('path')
-const isDev = require('electron-is-dev')
+const path = require("path");
+const isDev = require("electron-is-dev");
 
-require('@electron/remote/main').initialize()
+require("@electron/remote/main").initialize();
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -16,28 +16,29 @@ const createWindow = () => {
       nodeIntegration: true,
       enableRemoteModule: true,
       contextIsolation: false
-    }
-  })
+    },
+    icon: __dirname + "/logo512.png",
+  });
 
   win.loadURL(
     isDev
-      ? 'http://localhost:3111'
-      : `file://${path.join(__dirname, '../build/index.html')}`
-  )
-}
+      ? "http://localhost:3111"
+      : `file://${path.join(__dirname, "../build/index.html")}`
+  );
+};
 
 app.whenReady().then(() => {
-  createWindow()
-})
+  createWindow();
+});
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
   }
-})
+});
 
-app.on('active', () => {
+app.on("active", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
+    createWindow();
   }
-})
+});
